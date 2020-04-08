@@ -46,7 +46,10 @@ val swaggerVersion: String = "2.9.2"
 
 dependencies {
 
-	//External Dependancies
+	// Internal Dependencies
+	implementation("ie.daithi.quizmaster:quizmaster-frontend:$version")
+
+	//External Dependencies
 
 	//Kotlin dependencies
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
