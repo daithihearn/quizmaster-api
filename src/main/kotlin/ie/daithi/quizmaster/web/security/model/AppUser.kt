@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class AppUser (
     @Id
     var id: String? = null,
-    @Indexed
+//    @Indexed
     var username: String? = null,
     var password: String? = null,
     var authorities: List<Authority>?
