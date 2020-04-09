@@ -61,6 +61,10 @@ dependencies {
 	//Spring dependencies
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-starter-mail:$springBootVersion")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
