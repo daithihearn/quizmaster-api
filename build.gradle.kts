@@ -33,6 +33,9 @@ repositories {
 	mavenLocal()
 	mavenCentral()
 	maven(url = "https://jitpack.io")
+	flatDir {
+		dirs("libs")
+	}
 }
 
 group = "ie.daithi.quizmaster"

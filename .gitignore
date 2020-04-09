@@ -35,7 +35,6 @@ classes/
 frontend
 /output/
 dump.rdb
-/libs
 /root
 /out
 velocity.log*
