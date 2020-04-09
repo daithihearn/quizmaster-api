@@ -44,7 +44,7 @@ java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 description = "api"
 
-val springBootVersion: String = "2.1.7.RELEASE"
+val springBootVersion: String = "2.2.6.RELEASE"
 val swaggerVersion: String = "2.9.2"
 
 dependencies {
@@ -73,7 +73,7 @@ dependencies {
 	implementation("io.springfox:springfox-swagger2:$swaggerVersion")
 	implementation("io.springfox:springfox-swagger-ui:$swaggerVersion")
 
-
+	implementation("com.auth0:java-jwt:3.10.2")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
 
 }
