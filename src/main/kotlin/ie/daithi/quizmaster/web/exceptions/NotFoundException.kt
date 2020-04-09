@@ -12,6 +12,6 @@ class NotFoundException: Exception {
     }
 
     companion object {
-        private val logger = LogManager.getLogger(NotFoundException)
+        private val logger = LogManager.getLogger(this::class.java)
     }
 }

@@ -4,11 +4,12 @@ import ie.daithi.quizmaster.model.Quiz
 import ie.daithi.quizmaster.service.QuizService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import io.swagger.annotations.*
+import org.apache.logging.log4j.LogManager
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/quiz")
+@RequestMapping("/api/v1/admin/quiz")
 @Api(tags = ["Quiz"], description = "Endpoints that relate to CRUD operations on Quizzes")
 class QuizController (
         private val quizService: QuizService
@@ -60,5 +61,9 @@ class QuizController (
     fun deleteQuiz(@ApiParam(required = true, value = "The unique ID for a quiz")
                    @RequestParam(required = true) id: String) {
         quizService.delete(id)
+    }
+
+    companion object {
+        private val logger = LogManager.getLogger(this::class.java)
     }
 }

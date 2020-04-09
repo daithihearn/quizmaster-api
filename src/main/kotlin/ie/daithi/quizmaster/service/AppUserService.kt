@@ -1,6 +1,7 @@
 package ie.daithi.quizmaster.service
 
 import ie.daithi.quizmaster.repositories.AppUserRepo
+import org.apache.logging.log4j.LogManager
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -24,5 +25,9 @@ class AppUserService (
         appUser.authorities!!.forEach { authority -> authorities.add(SimpleGrantedAuthority(authority.toString())) }
 
         return User(appUser.username, appUser.password, authorities)
+    }
+
+    companion object {
+        private val logger = LogManager.getLogger(this::class.java)
     }
 }
