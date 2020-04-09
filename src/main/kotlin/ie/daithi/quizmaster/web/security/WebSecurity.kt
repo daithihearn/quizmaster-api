@@ -3,6 +3,7 @@ package ie.daithi.quizmaster.web.security
 import com.google.common.collect.ImmutableList
 import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.service.AppUserService
+import ie.daithi.quizmaster.web.security.model.Authority
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpMethod
@@ -53,9 +54,12 @@ class WebSecurity (
                 .antMatchers(HttpMethod.GET, "/").permitAll()
                 .antMatchers(HttpMethod.GET, "/favicon.png").permitAll()
                 // TODO Add role based rules
-                .antMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/v1/**").permitAll()
-                .antMatchers(HttpMethod.DELETE, "/api/v1/**").permitAll()
+//                .antMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+//                .antMatchers(HttpMethod.PUT, "/api/v1/**").permitAll()
+//                .antMatchers(HttpMethod.DELETE, "/api/v1/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/admin/**").hasAuthority(Authority.ADMIN.toString())
+                .antMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasAuthority(Authority.ADMIN.toString())
+                .antMatchers(HttpMethod.DELETE, "/api/v1/admin/**").hasAuthority(Authority.ADMIN.toString())
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(JwtAuthenticationFilter(authenticationManager(), appUserRepo, securitySecret, securityExpirationTime))
