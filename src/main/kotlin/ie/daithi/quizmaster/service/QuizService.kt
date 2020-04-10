@@ -38,10 +38,11 @@ class QuizService(
         return quizRepo.findAll()
     }
 
-    fun save(quiz: Quiz) {
+    fun save(quiz: Quiz): String {
         logger.info("Attempting to save a quiz: ${quiz.name}")
         quizRepo.save(quiz)
-        logger.info("Quiz successfully saved: ${quiz.name}")
+        logger.info("Quiz successfully saved: ${quiz.id}")
+        return quiz.id!!
     }
 
     fun delete(id: String) {
