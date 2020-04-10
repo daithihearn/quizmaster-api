@@ -4,6 +4,9 @@ import ie.daithi.quizmaster.service.AppUserService
 import io.swagger.annotations.*
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -31,7 +34,22 @@ class SessionController (
             ApiResponse(code = 200, message = "Request successful")
     )
     @ResponseBody
-    fun name(authentication: Authentication): String {
-        return appUserService.loadUserByUsername(authentication.name).username
+    fun name(): String {
+        return appUserService.loadUserByUsername(SecurityContextHolder.getContext().authentication.name).username
+    }
+
+    @GetMapping("/type")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Get user type", notes = "Get user type")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful")
+    )
+    @ResponseBody
+    fun authorities(): String {
+        val authorities = appUserService.loadUserByUsername(SecurityContextHolder.getContext().authentication.name).authorities
+
+        if (authorities.contains(SimpleGrantedAuthority("ADMIN")))
+            return "ADMIN"
+        return "PLAYER"
     }
 }
