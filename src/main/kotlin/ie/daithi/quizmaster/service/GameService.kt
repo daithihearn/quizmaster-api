@@ -11,10 +11,13 @@ import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.security.model.AppUser
 import ie.daithi.quizmaster.web.security.model.Authority
 import org.apache.logging.log4j.LogManager
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.web.socket.TextMessage
 import java.security.SecureRandom
 import java.util.*
+
 
 @Service
 class GameService(
@@ -23,7 +26,8 @@ class GameService(
         private val emailValidator: EmailValidator,
         private val emailService: EmailService,
         private val appUserRepo: AppUserRepo,
-        private val passwordEncoder: BCryptPasswordEncoder
+        private val passwordEncoder: BCryptPasswordEncoder,
+        private val messageSender: SimpMessagingTemplate
 ) {
     fun create(playerEmails: List<String>, quizId: String): Game {
         logger.info("Attempting to start a quiz $quizId")
@@ -67,6 +71,11 @@ class GameService(
 
         logger.info("Quiz started successfully $quizId")
         return game
+    }
+
+    fun pushMessage(message: String) {
+        val wsMessage = TextMessage(message)
+        messageSender.convertAndSend("/topic", wsMessage)
     }
 
     companion object {

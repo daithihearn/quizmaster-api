@@ -1,8 +1,6 @@
 package ie.daithi.quizmaster.web.controller
 
-import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.service.AppUserService
-import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import io.swagger.annotations.*
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication

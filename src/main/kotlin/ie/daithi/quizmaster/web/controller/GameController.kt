@@ -27,6 +27,13 @@ class GameController (
         return gameService.create(createGame.playerEmails, createGame.quizId)
     }
 
+    @PostMapping("/pushMessageToScreen")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Push message to screen", notes = "Push message to screen")
+    fun pushMessageToScreen(@RequestBody message: String) {
+        gameService.pushMessage(message)
+    }
+
     companion object {
         private val logger = LogManager.getLogger(this::class.java)
     }
