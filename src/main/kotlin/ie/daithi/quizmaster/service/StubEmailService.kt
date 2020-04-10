@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service
 @Profile("dev")
 class StubEmailService(): EmailService {
     override fun sendQuizInvite(recipientEmail: String, password: String) {
-        logger.warn("As you are in dev mode, email will not send")
+        logger.warn("As you are in dev mode, email will not send.")
+        logger.warn("Logging user credentials instead: Username: $recipientEmail Password: $password")
     }
 
     companion object {
