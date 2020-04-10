@@ -19,7 +19,8 @@ class GameController (
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Create Game", notes = "Issues an email to all players with a link to allow them to access the game")
     @ApiResponses(
-            ApiResponse(code = 200, message = "Request successful")
+            ApiResponse(code = 200, message = "Request successful"),
+            ApiResponse(code = 502, message = "An error occurred when attempting to send email")
     )
     @ResponseBody
     fun startQuiz(@RequestBody createGame: CreateGame): Game {

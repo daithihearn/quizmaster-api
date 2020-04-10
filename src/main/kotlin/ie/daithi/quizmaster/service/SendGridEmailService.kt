@@ -9,6 +9,7 @@ import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import ie.daithi.quizmaster.validation.EmailValidator
 import ie.daithi.quizmaster.web.exceptions.InvalidEmailException
+import ie.daithi.quizmaster.web.exceptions.SendEmailException
 import org.apache.logging.log4j.LogManager
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
@@ -39,17 +40,16 @@ class SendGridEmailService(
         val mail = Mail(from, subject, to, content)
 
         val request = Request()
-        try {
-            request.method = Method.POST
-            request.endpoint = "mail/send"
-            request.body = mail.build()
-            val response: Response = emailClient.api(request)
 
-            logger.info("Send email operation returned a statusCode of ${response.statusCode}")
-        } catch (ex: IOException) {
-            throw ex
-        }
+        request.method = Method.POST
+        request.endpoint = "mail/send"
+        request.body = mail.build()
+        val response: Response = emailClient.api(request)
 
+        logger.info("Send email operation returned a statusCode of ${response.statusCode}")
+
+        if (response.statusCode > 202)
+            throw SendEmailException("An error occurred when attempting to send email to $recipientEmail")
     }
 
     companion object {
