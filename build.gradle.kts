@@ -73,6 +73,8 @@ dependencies {
 	implementation("io.springfox:springfox-swagger2:$swaggerVersion")
 	implementation("io.springfox:springfox-swagger-ui:$swaggerVersion")
 
+	// Other
+	implementation("com.sendgrid:sendgrid-java:4.4.7")
 	implementation("com.auth0:java-jwt:3.10.2")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
 
