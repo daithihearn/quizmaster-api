@@ -1,4 +1,4 @@
-package ie.daithi.quizmaster.web
+package ie.daithi.quizmaster.web.model
 
 data class CreateGame(
         val playerEmails: List<String>,

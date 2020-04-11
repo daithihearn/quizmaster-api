@@ -8,5 +8,5 @@ data class Game (
     @Id
     var id: String? = null,
     var quizId: String? = null,
-    var players: List<Player>? = null
+    var players: List<Player> = emptyList()
 )

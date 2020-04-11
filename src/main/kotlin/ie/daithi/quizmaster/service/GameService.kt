@@ -2,15 +2,23 @@ package ie.daithi.quizmaster.service
 
 import ie.daithi.quizmaster.model.Game
 import ie.daithi.quizmaster.model.Player
+import ie.daithi.quizmaster.model.Question
+import ie.daithi.quizmaster.model.Quiz
 import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.repositories.GameRepo
 import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.validation.EmailValidator
 import ie.daithi.quizmaster.web.exceptions.InvalidEmailException
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.security.model.AppUser
 import ie.daithi.quizmaster.web.security.model.Authority
 import org.apache.logging.log4j.LogManager
+import org.springframework.data.mongodb.core.MongoOperations
+import org.springframework.data.mongodb.core.aggregation.Aggregation
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -27,7 +35,8 @@ class GameService(
         private val emailService: EmailService,
         private val appUserRepo: AppUserRepo,
         private val passwordEncoder: BCryptPasswordEncoder,
-        private val messageSender: SimpMessagingTemplate
+        private val messageSender: SimpMessagingTemplate,
+        private val mongoOperations: MongoOperations
 ) {
     fun create(playerEmails: List<String>, quizId: String): Game {
         logger.info("Attempting to start a quiz $quizId")
@@ -73,9 +82,66 @@ class GameService(
         return game
     }
 
-    fun pushMessage(message: String) {
-        val wsMessage = TextMessage(message)
-        messageSender.convertAndSend("/topic", wsMessage)
+    fun publishQuestion(pointer: QuestionPointer) {
+
+        // 1. Get the game
+        val game = gameRepo.findById(pointer.gameId)
+        if (!game.isPresent)
+            throw NotFoundException("Game ${pointer.gameId} not found")
+
+        // 2. Get question
+        val question = getQuestion(game.get().quizId!!, pointer.roundIndex, pointer.questionIndex)
+                ?: throw NotFoundException("Question not found ${pointer.gameId} -> ${pointer.roundIndex} -> ${pointer.questionIndex}")
+
+        // 3. Publish content to all players
+        val wsMessage = TextMessage(question.value!!)
+        game.get().players?.forEach {
+            messageSender.convertAndSendToUser(it.id!!, "/game", wsMessage)
+        }
+    }
+
+    /**
+     *   db.quizzes.aggregate([
+            { $match: {_id: ObjectId('5e91bedf70416b47e5db30db')}},
+            { $unwind: "$rounds"},
+            { $match: {"rounds.index": 0}},
+            { $unwind: "$rounds.questions"},
+            { $match: {"rounds.questions.index": 0}},
+            { $group: { _id: { question: "$rounds.questions"  } }},
+        ])
+     */
+    fun getQuestion(quizId: String, roundIndex: Int, questionIndex: Int): Question? {
+        val match1 = Aggregation.match(Criteria.where("id").`is`(quizId))
+        val unwind1 = Aggregation.unwind("\$rounds")
+        val match2 = Aggregation.match(Criteria.where("rounds.index").`is`(roundIndex))
+        val unwind2 = Aggregation.unwind("\$rounds.questions")
+        val match3 = Aggregation.match(Criteria.where("rounds.questions.index").`is`(questionIndex))
+        val group = Aggregation.group("\$rounds.questions")
+        val project = Aggregation.project()
+                .and("\$_id.index").`as`("index")
+                .and("\$_id.value").`as`("value")
+                .and("\$_id.imageUri").`as`("imageUri")
+                .and("\$_id.type").`as`("type")
+                .and("\$_id.answer").`as`("answer")
+                .and("\$_id.options").`as`("options")
+
+        val aggregation = Aggregation.newAggregation(match1, unwind1, match2, unwind2, match3, group, project)
+        return mongoOperations.aggregate(aggregation, Quiz::class.java, Question::class.java).uniqueMappedResult
+    }
+
+    fun get(id: String): Game {
+        val game = gameRepo.findById(id)
+        if (!game.isPresent)
+            throw NotFoundException("Game $id not found")
+        return game.get()
+    }
+
+    fun delete(id: String) {
+        gameRepo.deleteById(id)
+    }
+
+    fun getAll(): List<Game> {
+        return gameRepo.findAll()
     }
 
     companion object {

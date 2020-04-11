@@ -17,9 +17,8 @@ class WebSocketConfig (
         private val securitySecret: String
 ): WebSocketMessageBrokerConfigurer {
 
-
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
-        config.enableSimpleBroker("/topic", "/queue")
+        config.enableSimpleBroker("/game")
         config.setApplicationDestinationPrefixes("/app")
     }
 

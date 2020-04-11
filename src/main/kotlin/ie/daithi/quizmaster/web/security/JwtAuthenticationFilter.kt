@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm.HMAC512
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ie.daithi.quizmaster.repositories.AppUserRepo
+import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.security.exception.AuthenticationException
 import ie.daithi.quizmaster.web.security.model.AppUser
 import org.springframework.security.authentication.AuthenticationManager
@@ -33,20 +34,18 @@ open class JwtAuthenticationFilter(
         try {
             val user = jacksonObjectMapper().readValue(req.inputStream, AppUser::class.java)
 
-            //TODO If user == null, throw bad credentials exception, otherwise null pointer exception is given
-            // GDPR Concern
-            // It means a different error is thrown on the frontend, therefore user's can check if an email exists
             val appUser = user.username?.let { appUsersRepository.findByUsernameIgnoreCase(it) }
 
             val authorities = arrayListOf<SimpleGrantedAuthority>()
 
-            if (appUser != null) {
-                appUser.authorities?.forEach { authority -> authorities.add(SimpleGrantedAuthority(authority.toString())) }
-            }
+            if (appUser == null)
+                throw NotFoundException("Appuser not found!")
+
+            appUser.authorities?.forEach { authority -> authorities.add(SimpleGrantedAuthority(authority.toString())) }
 
             return authenticationManager.authenticate(
                     UsernamePasswordAuthenticationToken(
-                            user.username,
+                            appUser.id,
                             user.password,
                             authorities))
 
