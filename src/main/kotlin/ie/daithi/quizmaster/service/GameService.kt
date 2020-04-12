@@ -75,7 +75,7 @@ class GameService(
 
         // 5. Create Game
         val game = Game(quizId = quizId, quizMasterId = quizMasterId)
-        game.players = users.map { Player(id = it.id) }
+        game.players = users.map { Player(id = it.username) }
         gameRepo.save(game)
 
         logger.info("Quiz started successfully $quizId")
