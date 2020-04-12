@@ -18,12 +18,12 @@ class WebSocketConfig (
 ): WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
-        config.enableSimpleBroker("/game")
+        config.enableSimpleBroker("/game", "/scoring")
         config.setApplicationDestinationPrefixes("/app")
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-
+        
         // TODO: Only supports one origin
         registry.addEndpoint("/websocket/")
                 .setAllowedOrigins(allowedOrigins.first())

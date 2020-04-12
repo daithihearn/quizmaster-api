@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.web.controller
 
+import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.SubmitAnswer
@@ -12,13 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/answer")
+@RequestMapping("/api/v1")
 @Api(tags = ["Answer"], description = "Endpoints that relate to CRUD operations on answers")
 class AnswerController(
         private val answerService: AnswerService
 ) {
 
-    @PostMapping
+    @PostMapping("/answer")
     @ResponseStatus(value = HttpStatus.OK)
     @Throws(NotFoundException::class)
     @ApiOperation(value = "Submit answer", notes = "Submit answer")
@@ -30,8 +31,33 @@ class AnswerController(
         val id = SecurityContextHolder.getContext().authentication.name
         answerService.submitAnswer(
                 id = id,
+                gameId = answer.gameId,
                 roundIndex = answer.roundIndex,
                 questionIndex = answer.questionIndex,
                 answer = answer.answer)
+    }
+
+    @PutMapping("/admin/answer")
+    @ResponseStatus(value = HttpStatus.OK)
+    @Throws(NotFoundException::class)
+    @ApiOperation(value = "Submit corrected answer", notes = "Submit corrected answer")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful")
+    )
+    @ResponseBody
+    fun submitCorrection(@RequestBody answer: Answer) {
+        answerService.save(answer)
+    }
+
+    @GetMapping("/admin/answer/unscored")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Get unscored answers", notes = "Get unscored answers for the game")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful"),
+            ApiResponse(code = 404, message = "Game not found")
+    )
+    @ResponseBody
+    fun getUnscoredAnswers(@RequestParam id: String): List<Answer> {
+        return answerService.getUnscoredAnswers(id)
     }
 }

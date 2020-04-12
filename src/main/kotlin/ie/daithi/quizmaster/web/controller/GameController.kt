@@ -1,19 +1,23 @@
 package ie.daithi.quizmaster.web.controller
 
+import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.model.Game
+import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.model.CreateGame
 import ie.daithi.quizmaster.web.model.QuestionPointer
 import io.swagger.annotations.*
 import org.apache.logging.log4j.LogManager
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/admin/game")
 @Api(tags = ["Game"], description = "Endpoints that relate to CRUD operations on Games")
 class GameController (
-        private val gameService: GameService
+        private val gameService: GameService,
+        private val answerService: AnswerService
 ){
 
 
@@ -49,7 +53,8 @@ class GameController (
     )
     @ResponseBody
     fun create(@RequestBody createGame: CreateGame): Game {
-        return gameService.create(createGame.playerEmails, createGame.quizId)
+        val id = SecurityContextHolder.getContext().authentication.name
+        return gameService.create(id, createGame.playerEmails, createGame.quizId)
     }
 
     @DeleteMapping

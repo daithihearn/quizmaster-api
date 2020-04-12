@@ -19,15 +19,12 @@ import org.apache.logging.log4j.LogManager
 import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.Update
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.TextMessage
 import java.security.SecureRandom
 import java.util.*
-
 
 @Service
 class GameService(
@@ -41,7 +38,7 @@ class GameService(
         private val mongoOperations: MongoOperations,
         private val objectMapper: ObjectMapper
 ) {
-    fun create(playerEmails: List<String>, quizId: String): Game {
+    fun create(quizMasterId: String, playerEmails: List<String>, quizId: String): Game {
         logger.info("Attempting to start a quiz $quizId")
 
         // 1. Check that quiz exists
@@ -77,7 +74,7 @@ class GameService(
         }
 
         // 5. Create Game
-        val game = Game(quizId = quizId)
+        val game = Game(quizId = quizId, quizMasterId = quizMasterId)
         game.players = users.map { Player(id = it.id) }
         gameRepo.save(game)
 
@@ -97,9 +94,11 @@ class GameService(
                 ?: throw NotFoundException("Question not found ${pointer.gameId} -> ${pointer.roundIndex} -> ${pointer.questionIndex}")
 
         val presentQuestion = question.value?.let {
-            PresentQuestion(roundIndex = pointer.roundIndex,
-                questionIndex = pointer.questionIndex,
-                question = it)
+            PresentQuestion(
+                    gameId = pointer.gameId,
+                    roundIndex = pointer.roundIndex,
+                    questionIndex = pointer.questionIndex,
+                    question = it)
         }
 
         // 3. Publish content to all players

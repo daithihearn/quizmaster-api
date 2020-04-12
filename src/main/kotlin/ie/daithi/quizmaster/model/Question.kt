@@ -8,5 +8,6 @@ data class Question(
         var imageUri: String? = null,
         var type: QuestionType? = null,
         var answer: String? = null,
-        var options: List<String>? = null
+        var options: List<String>? = null,
+        val points: Float? = null
 )
