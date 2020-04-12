@@ -52,7 +52,7 @@ class GameController (
             ApiResponse(code = 502, message = "An error occurred when attempting to send email")
     )
     @ResponseBody
-    fun create(@RequestBody createGame: CreateGame): Game {
+    fun put(@RequestBody createGame: CreateGame): Game {
         val id = SecurityContextHolder.getContext().authentication.name
         return gameService.create(id, createGame.playerEmails, createGame.quizId)
     }
