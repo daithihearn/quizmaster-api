@@ -11,7 +11,7 @@ class ScoringService {
 
     fun isCorrectAnswer(correctAnswer: String, answer: String): Boolean {
         // 1. Determine a winning score
-        val winningScore = correctAnswer.length * 1.8
+        val winningScore = correctAnswer.length * 2
 
         // 2. Get Fuzzy match score
         val score = fuzzyScore.fuzzyScore(correctAnswer, answer)
@@ -23,7 +23,7 @@ class ScoringService {
 
     fun isInCorrectAnswer(correctAnswer: String, answer: String): Boolean {
         // 1. Determine a loosing score
-        val loosingScore = correctAnswer.length * 1
+        val loosingScore = correctAnswer.length * 0.4
 
         // 2. Get Fuzzy match score
         val score = fuzzyScore.fuzzyScore(correctAnswer, answer)
