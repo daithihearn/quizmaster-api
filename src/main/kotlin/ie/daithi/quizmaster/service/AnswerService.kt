@@ -10,9 +10,8 @@ class AnswerService(
     private val answerRepo: AnswerRepo
 ) {
 
-    fun submitAnswer(id: String, gameId: String, roundIndex: Int, questionIndex: Int, answer: String) {
-        val answer = Answer(playerId = id, gameId = gameId, roundIndex = roundIndex, questionIndex = questionIndex, answer = answer)
-        answerRepo.save(answer)
+    fun submitAnswer(id: String, roundIndex: Int, questionIndex: Int, answer: String) {
+        answerRepo.save(Answer(playerId = id, roundIndex = roundIndex, questionIndex = questionIndex, answer = answer))
     }
 
     companion object {

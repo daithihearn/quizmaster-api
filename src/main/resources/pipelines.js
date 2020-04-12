@@ -14,5 +14,26 @@ db.quizzes.aggregate([
     { "$match" : { "rounds.index" : 0}}, 
     { "$unwind" : "$rounds.questions"}, 
     { "$match" : { "rounds.questions.index" : 0}}, 
-    { "$group" : { "_id" : "$rounds.questions"}}
+    { "$group" : { "_id" : "$rounds.questions"}},
+    { "$project": { "_id": null, "index": "$_id.index" }}
+])
+
+db.quizzes.aggregate([ 
+    { "$match" : { _id : ObjectId("5e91bedf70416b47e5db30db")}} , 
+    { "$unwind" : "$rounds"} , 
+    { "$match" : { "rounds.index" : 0}} , 
+    { "$unwind" : "$rounds.questions"} , 
+    { "$match" : { "rounds.questions.index" : 0}} , 
+    { "$group" : { "_id" : "$rounds.questions"}} , 
+    { "$project" : { "_id" : 1 , "index" : "$_id.index" , "value" : "$_id.value" , "imageUri" : "$_id.imageUri" , "type" : "$_id.type" , "answer" : "$_id.answer" , "options" : "$_id.options"}}
+])
+
+db.quizzes.aggregate([ 
+    // { "$match" : { "id" : "5e91bedf70416b47e5db30db"}} , 
+    { "$match" : { _id : ObjectId("5e91bedf70416b47e5db30db")}} , 
+    { "$unwind" : "$rounds"} , { "$match" : { "rounds.index" : 0}} , 
+    { "$unwind" : "$rounds.questions"} , 
+    { "$match" : { "rounds.questions.index" : 0}} , 
+    { "$group" : { "_id" : "$rounds.questions"}} , 
+    { "$project" : { "index" : "$_id.index" , "value" : "$_id.value" , "imageUri" : "$_id.imageUri" , "type" : "$_id.type" , "answer" : "$_id.answer" , "options" : "$_id.options"}}
 ])

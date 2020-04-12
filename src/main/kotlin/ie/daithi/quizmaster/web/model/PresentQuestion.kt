@@ -1,7 +1,7 @@
 package ie.daithi.quizmaster.web.model
 
-data class SubmitAnswer(
+data class PresentQuestion(
         val roundIndex: Int,
         val questionIndex: Int,
-        val answer: String
+        val question: String
 )

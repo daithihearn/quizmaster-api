@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import ie.daithi.quizmaster.model.Game
 import ie.daithi.quizmaster.model.Player
 import ie.daithi.quizmaster.model.Question
@@ -10,6 +11,7 @@ import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.validation.EmailValidator
 import ie.daithi.quizmaster.web.exceptions.InvalidEmailException
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.PresentQuestion
 import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.security.model.AppUser
 import ie.daithi.quizmaster.web.security.model.Authority
@@ -36,7 +38,8 @@ class GameService(
         private val appUserRepo: AppUserRepo,
         private val passwordEncoder: BCryptPasswordEncoder,
         private val messageSender: SimpMessagingTemplate,
-        private val mongoOperations: MongoOperations
+        private val mongoOperations: MongoOperations,
+        private val objectMapper: ObjectMapper
 ) {
     fun create(playerEmails: List<String>, quizId: String): Game {
         logger.info("Attempting to start a quiz $quizId")
@@ -93,9 +96,15 @@ class GameService(
         val question = getQuestion(game.get().quizId!!, pointer.roundIndex, pointer.questionIndex)
                 ?: throw NotFoundException("Question not found ${pointer.gameId} -> ${pointer.roundIndex} -> ${pointer.questionIndex}")
 
+        val presentQuestion = question.value?.let {
+            PresentQuestion(roundIndex = pointer.roundIndex,
+                questionIndex = pointer.questionIndex,
+                question = it)
+        }
+
         // 3. Publish content to all players
-        val wsMessage = TextMessage(question.value!!)
-        game.get().players?.forEach {
+        val wsMessage = TextMessage(objectMapper.writeValueAsString(presentQuestion))
+        game.get().players.forEach {
             messageSender.convertAndSendToUser(it.id!!, "/game", wsMessage)
         }
     }

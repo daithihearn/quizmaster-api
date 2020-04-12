@@ -18,7 +18,7 @@ class AnswerController(
         private val answerService: AnswerService
 ) {
 
-    @PutMapping
+    @PostMapping
     @ResponseStatus(value = HttpStatus.OK)
     @Throws(NotFoundException::class)
     @ApiOperation(value = "Submit answer", notes = "Submit answer")
@@ -28,6 +28,10 @@ class AnswerController(
     @ResponseBody
     fun submitAnswer(@RequestBody answer: SubmitAnswer) {
         val id = SecurityContextHolder.getContext().authentication.name
-        answerService.submitAnswer(id, answer.gameId, answer.roundIndex, answer.questionIndex, answer.answer)
+        answerService.submitAnswer(
+                id = id,
+                roundIndex = answer.roundIndex,
+                questionIndex = answer.questionIndex,
+                answer = answer.answer)
     }
 }
