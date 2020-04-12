@@ -11,7 +11,7 @@ export ADMIN_USERNAME=admin
 export ADMIN_PASSWORD=password
 export SENDGRID_API_KEY=YOUR API KEY GOES HERE
 export PLAYER_LOGIN_URL=http://localhost:8080
-export CORS_WHITELIST=http://192.168.1.59:8080
+export CORS_WHITELIST=http://localhost:3000
 
 echo "
     Starting app...."
