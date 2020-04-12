@@ -3,6 +3,7 @@ package ie.daithi.quizmaster.web.controller
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.SubmitAnswer
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -59,5 +60,12 @@ class AnswerController(
     @ResponseBody
     fun getUnscoredAnswers(@RequestParam id: String): List<Answer> {
         return answerService.getUnscoredAnswers(id)
+    }
+
+    @GetMapping("/answer/leaderboard")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Get leaderboard", notes = "Get leaderboard")
+    fun getLeaderboard(@RequestParam id: String): List<Score> {
+        return answerService.getLeaderboard(id)
     }
 }

@@ -23,7 +23,7 @@ class WebSocketConfig (
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        
+
         // TODO: Only supports one origin
         registry.addEndpoint("/websocket/")
                 .setAllowedOrigins(allowedOrigins.first())

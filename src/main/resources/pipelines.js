@@ -37,3 +37,15 @@ db.quizzes.aggregate([
     { "$group" : { "_id" : "$rounds.questions"}} , 
     { "$project" : { "index" : "$_id.index" , "value" : "$_id.value" , "imageUri" : "$_id.imageUri" , "type" : "$_id.type" , "answer" : "$_id.answer" , "options" : "$_id.options"}}
 ])
+
+db.answers.aggregate([
+    { "$match" : { gameId : "5e932fb170416b4231a2fa43" }},
+    { "$group" : { "_id" : "$playerId" , score: {$sum: { "$toDouble": "$score"}}}},
+    { "$project": { "playerId": "$_id", "score":"$score"}}
+])
+
+db.answers.aggregate([
+    "$match" : { "gameId" : "5e932fb170416b4231a2fa43"}} ,
+    { "$group" : { "_id" : "$playerId" , "score" : { "$sum" : "$score"}}} ,
+    { "$project" : { "playerId" : "$_id" , "score" : 1}}
+]

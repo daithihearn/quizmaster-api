@@ -6,6 +6,7 @@ import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.model.CreateGame
 import ie.daithi.quizmaster.web.model.QuestionPointer
+import ie.daithi.quizmaster.web.model.Score
 import io.swagger.annotations.*
 import org.apache.logging.log4j.LogManager
 import org.springframework.http.HttpStatus
