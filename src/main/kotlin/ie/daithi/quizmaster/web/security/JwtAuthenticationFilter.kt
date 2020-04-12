@@ -45,7 +45,7 @@ open class JwtAuthenticationFilter(
 
             return authenticationManager.authenticate(
                     UsernamePasswordAuthenticationToken(
-                            appUser.id,
+                            appUser.username,
                             user.password,
                             authorities))
 

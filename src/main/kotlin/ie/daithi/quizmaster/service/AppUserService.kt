@@ -17,15 +17,15 @@ class AppUserService (
 ): UserDetailsService {
 
     override fun loadUserByUsername(username: String): UserDetails {
-        val appUserOpt = appUserRepo.findById(username)
-        if (!appUserOpt.isPresent)
-            throw NotFoundException("User $username not found")
-        val appUser = appUserOpt.get()
+        val appUser = appUserRepo.findByUsernameIgnoreCase(username)
+
+        if (appUser?.authorities == null)
+            throw RuntimeException("appuser not found")
 
         val authorities = arrayListOf<GrantedAuthority>()
         appUser.authorities!!.forEach { authority -> authorities.add(SimpleGrantedAuthority(authority.toString())) }
 
-        return User(appUser.id, appUser.password, authorities)
+        return User(appUser.username, appUser.password, authorities)
     }
 
     companion object {

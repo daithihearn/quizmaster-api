@@ -1,10 +1,10 @@
 package ie.daithi.quizmaster.web.controller
 
-import ie.daithi.quizmaster.repositories.AppUserRepo
+import ie.daithi.quizmaster.service.AppUserService
 import io.swagger.annotations.*
 import org.apache.logging.log4j.LogManager
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/session")
 @Api(tags = ["Session"], description = "Endpoints for session info")
 class SessionController (
-        private val appUserRepo: AppUserRepo
+        private val appUserService: AppUserService
 ){
 
     @GetMapping("/isLoggedIn")
@@ -34,7 +34,7 @@ class SessionController (
     )
     @ResponseBody
     fun name(): String? {
-        return appUserRepo.findByIdOrNull(SecurityContextHolder.getContext().authentication.name)?.username
+        return appUserService.loadUserByUsername(SecurityContextHolder.getContext().authentication.name).username
     }
 
     @GetMapping("/type")
@@ -44,16 +44,14 @@ class SessionController (
             ApiResponse(code = 200, message = "Request successful")
     )
     @ResponseBody
-    fun authorities(): String {
+    fun authorities(): List<GrantedAuthority> {
         val id = SecurityContextHolder.getContext().authentication.name
         logger.debug("Trying to get the user type for $id")
 
-        val appUser = appUserRepo.findByIdOrNull(id) ?: return ""
+        val appUser = appUserService.loadUserByUsername(id)
 
-        val authorities = appUser.authorities ?: return ""
-
-        logger.debug("User type: ${authorities[0].name}")
-        return authorities[0].name
+        logger.debug("User type: ${appUser.authorities}")
+        return appUser.authorities.toMutableList()
     }
 
     companion object {
