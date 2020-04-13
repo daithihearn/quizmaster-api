@@ -70,7 +70,7 @@ class AnswerController(
         return answerService.getLeaderboard(id)
     }
 
-    @PostMapping("/admin/andwer/publishLeaderboard")
+    @PutMapping("/admin/answer/publishLeaderboard")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Publish leaderboard", notes = "Publish leaderboard")
     fun publishLeaderboard(@RequestParam id: String) {

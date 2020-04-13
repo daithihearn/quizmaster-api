@@ -74,7 +74,7 @@ class GameController (
         return gameService.delete(id)
     }
 
-    @PostMapping("/admin/game/publishQuestion")
+    @PutMapping("/admin/game/publishQuestion")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Publish question", notes = "Push question to screen")
     fun publishQuestion(@RequestBody pointer: QuestionPointer) {
