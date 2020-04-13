@@ -1,6 +1,5 @@
 package ie.daithi.quizmaster.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import ie.daithi.quizmaster.model.Game
 import ie.daithi.quizmaster.model.Player
 import ie.daithi.quizmaster.model.Question
@@ -13,16 +12,15 @@ import ie.daithi.quizmaster.web.exceptions.InvalidEmailException
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.PresentQuestion
 import ie.daithi.quizmaster.web.model.QuestionPointer
+import ie.daithi.quizmaster.web.model.enums.PublishContentType
 import ie.daithi.quizmaster.web.security.model.AppUser
 import ie.daithi.quizmaster.web.security.model.Authority
 import org.apache.logging.log4j.LogManager
 import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.socket.TextMessage
 import java.security.SecureRandom
 import java.util.*
 
@@ -34,9 +32,8 @@ class GameService(
         private val emailService: EmailService,
         private val appUserRepo: AppUserRepo,
         private val passwordEncoder: BCryptPasswordEncoder,
-        private val messageSender: SimpMessagingTemplate,
         private val mongoOperations: MongoOperations,
-        private val objectMapper: ObjectMapper
+        private val publishService: PublishService
 ) {
     fun create(quizMasterId: String, playerEmails: List<String>, quizId: String): Game {
         logger.info("Attempting to start a quiz $quizId")
@@ -65,9 +62,7 @@ class GameService(
                     password = passwordEncoder.encode(password),
                     authorities = listOf(Authority.PLAYER))
 
-            val existingUser = appUserRepo.findByUsernameIgnoreCase(it)
-            if (existingUser != null)
-                user.id = existingUser.id
+            appUserRepo.deleteByUsernameIgnoreCase(it)
             appUserRepo.save(user)
             users.add(user)
             emailService.sendQuizInvite(it, password)
@@ -75,7 +70,7 @@ class GameService(
 
         // 5. Create Game
         val game = Game(quizId = quizId, quizMasterId = quizMasterId)
-        game.players = users.map { Player(id = it.username) }
+        game.players = users.map { Player(id = it.id!!, displayName = it.username!!) }
         gameRepo.save(game)
 
         logger.info("Quiz started successfully $quizId")
@@ -102,10 +97,7 @@ class GameService(
         }
 
         // 3. Publish content to all players
-        val wsMessage = TextMessage(objectMapper.writeValueAsString(presentQuestion))
-        game.get().players.forEach {
-            messageSender.convertAndSendToUser(it.id!!, "/game", wsMessage)
-        }
+        publishService.publishContent(game.get().players.map { it.displayName!! }, "/game", presentQuestion!!, pointer.gameId, PublishContentType.QUESTION)
     }
 
     /**
@@ -150,6 +142,10 @@ class GameService(
 
     fun getAll(): List<Game> {
         return gameRepo.findAll()
+    }
+
+    fun getByPlayerId(id: String): Game {
+        return gameRepo.getByPlayerId(id)
     }
 
     companion object {

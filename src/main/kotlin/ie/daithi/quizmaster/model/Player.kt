@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.model
 
 data class Player(
-        var id: String? = null
+        var id: String,
+        var displayName: String
 )

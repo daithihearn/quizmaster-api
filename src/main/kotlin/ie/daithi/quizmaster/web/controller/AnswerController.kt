@@ -3,6 +3,7 @@ package ie.daithi.quizmaster.web.controller
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.SubmitAnswer
 import io.swagger.annotations.Api
@@ -67,5 +68,12 @@ class AnswerController(
     @ApiOperation(value = "Get leaderboard", notes = "Get leaderboard")
     fun getLeaderboard(@RequestParam id: String): List<Score> {
         return answerService.getLeaderboard(id)
+    }
+
+    @PostMapping("/admin/andwer/publishLeaderboard")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Publish leaderboard", notes = "Publish leaderboard")
+    fun publishLeaderboard(@RequestParam id: String) {
+        answerService.publishLeaderboard(id)
     }
 }

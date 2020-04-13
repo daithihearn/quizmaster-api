@@ -1,15 +1,13 @@
 package ie.daithi.quizmaster.service
 
 import ie.daithi.quizmaster.model.Answer
-import ie.daithi.quizmaster.model.Question
-import ie.daithi.quizmaster.model.Quiz
 import ie.daithi.quizmaster.repositories.AnswerRepo
 import ie.daithi.quizmaster.web.model.Score
+import ie.daithi.quizmaster.web.model.enums.PublishContentType
 import org.apache.logging.log4j.LogManager
 import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,8 +15,8 @@ class AnswerService(
     private val answerRepo: AnswerRepo,
     private val gameService: GameService,
     private val scoringService: ScoringService,
-    private val messageSender: SimpMessagingTemplate,
-    private val mongoOperations: MongoOperations
+    private val mongoOperations: MongoOperations,
+    private val publishService: PublishService
 ) {
 
     fun submitAnswer(id: String, gameId: String, roundIndex: Int, questionIndex: Int, answer: String) {
@@ -35,7 +33,7 @@ class AnswerService(
 
         // 3. Publish to Quiz Master if not able to correct
         if (answerObj.score == null)
-            messageSender.convertAndSendToUser(game.quizMasterId!!, "/scoring", answerObj)
+            publishService.publishContent(game.quizMasterId!!, "/scoring", answerObj)
     }
 
     fun getUnscoredAnswers(gameId: String): List<Answer> {
@@ -62,6 +60,18 @@ class AnswerService(
 
     fun save(answer: Answer) {
         answerRepo.save(answer)
+    }
+
+    fun publishLeaderboard(id: String) {
+        // 1. Get the leaderboard
+        val leaderboard = getLeaderboard(id)
+
+        // 2. Get the game
+        val game = gameService.get(id)
+
+        // 3. Publish the leaderboard
+        publishService.publishContent(game.players.map { it.displayName }, "/game", leaderboard, id, PublishContentType.LEADERBOARD )
+
     }
 
     companion object {
