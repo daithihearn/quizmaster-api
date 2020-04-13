@@ -5,6 +5,7 @@ import ie.daithi.quizmaster.repositories.AnswerRepo
 import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.enums.PublishContentType
 import org.apache.logging.log4j.LogManager
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
@@ -72,6 +73,10 @@ class AnswerService(
         // 3. Publish the leaderboard
         publishService.publishContent(game.players.map { it.displayName }, "/game", leaderboard, id, PublishContentType.LEADERBOARD )
 
+    }
+
+    fun hasAnswered(gameId: String, playerId: String): Boolean {
+        return answerRepo.existsByGameIdAndPlayerId(gameId, playerId)
     }
 
     companion object {

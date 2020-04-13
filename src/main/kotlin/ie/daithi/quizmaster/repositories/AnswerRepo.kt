@@ -7,4 +7,6 @@ interface AnswerRepo: MongoRepository<Answer, String> {
 
     fun findByGameIdAndScore(gameId: String, score: Float?): List<Answer>
 
+    fun existsByGameIdAndPlayerId(gameId: String, playerId: String): Boolean
+
 }

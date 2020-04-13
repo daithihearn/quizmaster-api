@@ -3,11 +3,13 @@ package ie.daithi.quizmaster.web.controller
 import ie.daithi.quizmaster.model.Game
 import ie.daithi.quizmaster.model.PublishContent
 import ie.daithi.quizmaster.repositories.AppUserRepo
+import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.service.CurrentContentService
 import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.CreateGame
 import ie.daithi.quizmaster.web.model.QuestionPointer
+import ie.daithi.quizmaster.web.model.enums.PublishContentType
 import io.swagger.annotations.*
 import org.apache.logging.log4j.LogManager
 import org.springframework.http.HttpStatus
@@ -20,7 +22,8 @@ import org.springframework.web.bind.annotation.*
 class GameController (
         private val gameService: GameService,
         private val currentContentService: CurrentContentService,
-        private val appUserRepo: AppUserRepo
+        private val appUserRepo: AppUserRepo,
+        private val answerService: AnswerService
 ){
 
 
@@ -89,7 +92,13 @@ class GameController (
         val id = SecurityContextHolder.getContext().authentication.name
         val appUser = appUserRepo.findByUsernameIgnoreCase(id) ?: throw NotFoundException("User not found")
         val game = gameService.getByPlayerId(appUser.id!!)
-        return currentContentService.get(game.id!!)
+        val content = currentContentService.get(game.id!!)
+
+        // If the content type is a question check if they have already answered it
+        if (content!!.type == PublishContentType.QUESTION && answerService.hasAnswered(game.id!!, appUser.username!!))
+            return null
+
+        return content
     }
 
     companion object {

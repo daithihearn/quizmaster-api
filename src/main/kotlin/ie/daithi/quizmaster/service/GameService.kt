@@ -36,7 +36,7 @@ class GameService(
         private val publishService: PublishService
 ) {
     fun create(quizMasterId: String, playerEmails: List<String>, quizId: String): Game {
-        logger.info("Attempting to start a quiz $quizId")
+        logger.info("Attempting to start a game for quizId: $quizId")
 
         // 1. Check that quiz exists
         if (!quizRepo.existsById(quizId))
@@ -73,7 +73,7 @@ class GameService(
         game.players = users.map { Player(id = it.id!!, displayName = it.username!!) }
         gameRepo.save(game)
 
-        logger.info("Quiz started successfully $quizId")
+        logger.info("Game started successfully ${game.id}")
         return game
     }
 
@@ -93,11 +93,12 @@ class GameService(
                     gameId = pointer.gameId,
                     roundIndex = pointer.roundIndex,
                     questionIndex = pointer.questionIndex,
-                    question = it)
+                    question = it,
+                    imageUri = question.imageUri)
         }
 
         // 3. Publish content to all players
-        publishService.publishContent(game.get().players.map { it.displayName!! }, "/game", presentQuestion!!, pointer.gameId, PublishContentType.QUESTION)
+        publishService.publishContent(game.get().players.map { it.displayName }, "/game", presentQuestion!!, pointer.gameId, PublishContentType.QUESTION)
     }
 
     /**
