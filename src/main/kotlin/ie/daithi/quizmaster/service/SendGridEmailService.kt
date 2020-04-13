@@ -34,9 +34,8 @@ class SendGridEmailService(
         val from = Email(fromAddress)
         val subject = "Quiz!"
         val to = Email(recipientEmail)
-        val content = Content("text/html", "<html>You have been invited to join a quiz.<br><br>Please visit " +
-                "<a href='$playerLoginUrl'>$playerLoginUrl</a> and log in with the credentials below <br><br>" +
-                "<ul><li>Username: $recipientEmail</li><li>Password: $password</li></ul></html>")
+        val content = Content("text/html", "<html>You have been invited to join a quiz.<br><br>Please click " +
+                "<a href='$playerLoginUrl?username=$recipientEmail&password=$password'>$playerLoginUrl?username=$recipientEmail&password=$password</a> to log in</html>")
         val mail = Mail(from, subject, to, content)
 
         val request = Request()
