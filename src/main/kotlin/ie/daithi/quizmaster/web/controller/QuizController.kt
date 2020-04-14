@@ -48,8 +48,9 @@ class QuizController (
     @ApiResponses(
             ApiResponse(code = 200, message = "Request successful")
     )
-    fun putQuiz(@RequestBody quiz: Quiz) {
-        quizService.save(quiz)
+    @ResponseBody
+    fun putQuiz(@RequestBody quiz: Quiz): String {
+        return quizService.save(quiz)
     }
 
     @DeleteMapping

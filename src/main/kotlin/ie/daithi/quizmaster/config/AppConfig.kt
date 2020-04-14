@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.config
 
+import com.sendgrid.SendGrid
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -22,7 +23,9 @@ class AppConfig(
         @Value("\${password.encoder.strength}")
         private val strength: Int,
         @Value("\${password.encoder.seed}")
-        private val seed: String
+        private val seed: String,
+        @Value("\${sendgrid.api.key}")
+        private val sendgridApiKey: String
 ) {
 
     @Bean
@@ -52,7 +55,6 @@ class AppConfig(
         return listOf(SecurityReference("apiKey", authorizationScopes))
     }
 
-
     private fun apiInfo(): ApiInfo {
         return ApiInfo( "Quizmaster API",
                 "A RESTFul API for the Quizmaster application",
@@ -66,6 +68,11 @@ class AppConfig(
     fun passwordEncoder(): BCryptPasswordEncoder {
         val secureRandom = SecureRandom(seed.toByteArray())
         return BCryptPasswordEncoder(strength, secureRandom)
+    }
+
+    @Bean("emailClient")
+    fun emailClient(): SendGrid {
+        return SendGrid(sendgridApiKey)
     }
 
 }

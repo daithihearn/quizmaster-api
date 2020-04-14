@@ -1,6 +1,7 @@
 package ie.daithi.quizmaster.service
 
 import ie.daithi.quizmaster.repositories.AppUserRepo
+import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import org.apache.logging.log4j.LogManager
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
