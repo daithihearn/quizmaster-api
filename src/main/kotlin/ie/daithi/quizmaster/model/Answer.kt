@@ -5,11 +5,11 @@ import org.springframework.data.mongodb.core.mapping.Document
 @Document(collection="answers")
 data class Answer(
         var id: String? = null,
-        var quizId: String? = null,
-        var playerId: String? = null,
-        var gameId: String? = null,
-        var roundIndex: Int? = null,
-        var questionIndex: Int? = null,
-        var answer: String? = null,
+        val quizId: String,
+        val playerId: String,
+        val gameId: String,
+        val roundIndex: Int,
+        val questionIndex: Int,
+        val answer: String,
         var score: Float? = null
 )

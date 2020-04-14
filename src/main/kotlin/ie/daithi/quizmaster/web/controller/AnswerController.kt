@@ -3,6 +3,7 @@ package ie.daithi.quizmaster.web.controller
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.QuestionAnswerWrapper
 import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.SubmitAnswer
@@ -59,7 +60,7 @@ class AnswerController(
             ApiResponse(code = 404, message = "Game not found")
     )
     @ResponseBody
-    fun getUnscoredAnswers(@RequestParam id: String): List<Answer> {
+    fun getUnscoredAnswers(@RequestParam id: String): List<QuestionAnswerWrapper> {
         return answerService.getUnscoredAnswers(id)
     }
 

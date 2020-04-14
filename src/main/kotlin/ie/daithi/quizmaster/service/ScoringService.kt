@@ -34,9 +34,9 @@ class ScoringService {
     }
 
     fun attemptScore(answer: String, answerObj: Answer, points: Float?) {
-        if (isCorrectAnswer(answer, answerObj.answer!!)) {
+        if (isCorrectAnswer(answer, answerObj.answer)) {
             answerObj.score = points ?: 1f
-        } else if (isInCorrectAnswer(answer, answerObj.answer!!)) {
+        } else if (isInCorrectAnswer(answer, answerObj.answer)) {
             answerObj.score = 0f
         }
     }

@@ -8,6 +8,7 @@ import ie.daithi.quizmaster.service.CurrentContentService
 import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.CreateGame
+import ie.daithi.quizmaster.web.model.PresentQuestion
 import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.model.enums.PublishContentType
 import io.swagger.annotations.*
@@ -92,10 +93,13 @@ class GameController (
         val id = SecurityContextHolder.getContext().authentication.name
         val appUser = appUserRepo.findByUsernameIgnoreCase(id) ?: throw NotFoundException("User not found")
         val game = gameService.getByPlayerId(appUser.id!!)
-        val content = currentContentService.get(game.id!!)
+        val content = currentContentService.get(game.id!!)?: return null
 
         // If the content type is a question check if they have already answered it
-        if (content!!.type == PublishContentType.QUESTION && answerService.hasAnswered(game.id!!, appUser.username!!))
+        if (content.type == PublishContentType.QUESTION
+                && content.content is PresentQuestion
+                && content.content != null
+                && answerService.hasAnswered(game.id!!, appUser.username!!, (content.content as PresentQuestion).roundIndex, (content.content as PresentQuestion).questionIndex))
             return null
 
         return content
