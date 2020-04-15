@@ -77,4 +77,11 @@ class AnswerController(
     fun publishLeaderboard(@RequestParam id: String) {
         answerService.publishLeaderboard(id)
     }
+
+    @PutMapping("/admin/answer/publishAnswersForRound")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Publish answers for round", notes = "Publish answers for round")
+    fun publishAnswersForRound(@RequestParam gameId: String, @RequestParam roundId: String) {
+        answerService.publishAnswersForRound(gameId, roundId)
+    }
 }

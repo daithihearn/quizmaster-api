@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service
 class AnswerService(
     private val answerRepo: AnswerRepo,
     private val gameService: GameService,
+    private val quizService: QuizService,
     private val scoringService: ScoringService,
     private val mongoOperations: MongoOperations,
     private val publishService: PublishService
@@ -32,8 +33,8 @@ class AnswerService(
 
         // 2. Attempt to correct
         val game = gameService.get(gameId)
-        val answerObj = Answer(playerId = id, quizId = game.quizId!!, gameId = gameId, roundId = roundId, questionId = questionId, answer = answer)
-        val question = gameService.getQuestion(game.quizId!!, roundId, questionId)
+        val answerObj = Answer(playerId = id, quizId = game.quizId, gameId = gameId, roundId = roundId, questionId = questionId, answer = answer)
+        val question = gameService.getQuestion(game.quizId, roundId, questionId)
         scoringService.attemptScore(question!!.answer, answerObj, question.points)
 
         // 3. Store answer
@@ -41,7 +42,7 @@ class AnswerService(
 
         // 4. Publish to Quiz Master if not able to correct
         if (answerObj.score == null)
-            publishService.publishContent(game.quizMasterId!!, "/scoring", QuestionAnswerWrapper(question, answerObj))
+            publishService.publishContent(game.quizMasterId, "/scoring", QuestionAnswerWrapper(question, answerObj))
     }
 
     fun getUnscoredAnswers(gameId: String): List<QuestionAnswerWrapper> {
@@ -84,8 +85,28 @@ class AnswerService(
         val game = gameService.get(id)
 
         // 3. Publish the leaderboard
-        publishService.publishContent(game.players.map { it.displayName }, "/game", leaderboard, id, PublishContentType.LEADERBOARD )
+        publishService.publishContent(recipients = game.players.map { it.displayName },
+                topic = "/game",
+                content = leaderboard,
+                gameId = id,
+                contentType = PublishContentType.LEADERBOARD )
 
+    }
+
+    fun publishAnswersForRound(gameId: String, roundId: String) {
+        // 1. Get game
+        val game = gameService.get(gameId)
+
+        // 2. Get quiz
+        val quiz = quizService.get(game.quizId)
+        val round = quiz.rounds.first { it.id == roundId }
+
+        // 3. Publish round
+        publishService.publishContent(recipients = game.players.map { it.displayName },
+                topic = "/game",
+                content = round,
+                gameId = gameId,
+                contentType = PublishContentType.ROUND_SUMMARY )
     }
 
     fun hasAnswered(gameId: String, playerId: String, roundId: String, questionId: String): Boolean {
