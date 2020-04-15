@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.service
 
+import ie.daithi.quizmaster.enumeration.GameStatus
 import ie.daithi.quizmaster.model.Game
 import ie.daithi.quizmaster.model.Player
 import ie.daithi.quizmaster.model.Question
@@ -9,6 +10,7 @@ import ie.daithi.quizmaster.repositories.GameRepo
 import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.validation.EmailValidator
 import ie.daithi.quizmaster.web.exceptions.InvalidEmailException
+import ie.daithi.quizmaster.web.exceptions.InvalidSatusException
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.PresentQuestion
 import ie.daithi.quizmaster.web.model.QuestionPointer
@@ -35,7 +37,7 @@ class GameService(
         private val mongoOperations: MongoOperations,
         private val publishService: PublishService
 ) {
-    fun create(quizMasterId: String, playerEmails: List<String>, quizId: String): Game {
+    fun create(quizMasterId: String, name: String, playerEmails: List<String>, quizId: String): Game {
         logger.info("Attempting to start a game for quizId: $quizId")
 
         // 1. Check that quiz exists
@@ -69,8 +71,12 @@ class GameService(
         }
 
         // 5. Create Game
-        val game = Game(quizId = quizId, quizMasterId = quizMasterId)
-        game.players = users.map { Player(id = it.id!!, displayName = it.username!!) }
+        val game = Game(quizId = quizId,
+                quizMasterId = quizMasterId,
+                status = GameStatus.ACTIVE,
+                name = name,
+                players = users.map { Player(id = it.id!!, displayName = it.username!!) })
+
         gameRepo.save(game)
 
         logger.info("Game started successfully ${game.id}")
@@ -143,8 +149,26 @@ class GameService(
         return gameRepo.findAll()
     }
 
+    fun getActive(): List<Game> {
+        return gameRepo.findAllByStatus(GameStatus.ACTIVE)
+    }
+
     fun getByPlayerId(id: String): Game {
         return gameRepo.getByPlayerId(id)
+    }
+
+    fun finish(id: String) {
+        val game = get(id)
+        if( game.status == GameStatus.ACTIVE) throw InvalidSatusException("Can only finish a game that is in STARTED state not ${game.status}")
+        game.status = GameStatus.COMPLETED
+        gameRepo.save(game)
+    }
+
+    fun cancel(id: String) {
+        val game = get(id)
+        if( game.status == GameStatus.CANCELLED) throw InvalidSatusException("Game is already in CANCELLED state")
+        game.status = GameStatus.CANCELLED
+        gameRepo.save(game)
     }
 
     companion object {
