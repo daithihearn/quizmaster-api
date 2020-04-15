@@ -85,42 +85,40 @@ class GameService(
             throw NotFoundException("Game ${pointer.gameId} not found")
 
         // 2. Get question
-        val question = getQuestion(game.get().quizId!!, pointer.roundIndex, pointer.questionIndex)
-                ?: throw NotFoundException("Question not found ${pointer.gameId} -> ${pointer.roundIndex} -> ${pointer.questionIndex}")
+        val question = getQuestion(game.get().quizId!!, pointer.roundId, pointer.questionId)
+                ?: throw NotFoundException("Question not found ${pointer.gameId} -> ${pointer.roundId} -> ${pointer.questionId}")
 
-        val presentQuestion = question.value?.let {
-            PresentQuestion(
-                    gameId = pointer.gameId,
-                    roundIndex = pointer.roundIndex,
-                    questionIndex = pointer.questionIndex,
-                    question = it,
-                    imageUri = question.imageUri)
-        }
+        val presentQuestion = PresentQuestion(
+                gameId = pointer.gameId,
+                roundId = pointer.roundId,
+                questionId = pointer.questionId,
+                question = question.question,
+                imageUri = question.imageUri)
 
         // 3. Publish content to all players
-        publishService.publishContent(game.get().players.map { it.displayName }, "/game", presentQuestion!!, pointer.gameId, PublishContentType.QUESTION)
+        publishService.publishContent(game.get().players.map { it.displayName }, "/game", presentQuestion, pointer.gameId, PublishContentType.QUESTION)
     }
 
     /**
      *   db.quizzes.aggregate([
             { $match: {_id: ObjectId('5e91bedf70416b47e5db30db')}},
             { $unwind: "$rounds"},
-            { $match: {"rounds.index": 0}},
+            { $match: {"rounds.id": 0}},
             { $unwind: "$rounds.questions"},
-            { $match: {"rounds.questions.index": 0}},
+            { $match: {"rounds.questions.id": 0}},
             { $group: { _id: { question: "$rounds.questions"  } }},
         ])
      */
-    fun getQuestion(quizId: String, roundIndex: Int, questionIndex: Int): Question? {
+    fun getQuestion(quizId: String, roundId: String, questionId: String): Question? {
         val match1 = Aggregation.match(Criteria.where("id").`is`(quizId))
         val unwind1 = Aggregation.unwind("\$rounds")
-        val match2 = Aggregation.match(Criteria.where("rounds.index").`is`(roundIndex))
+        val match2 = Aggregation.match(Criteria.where("rounds.id").`is`(roundId))
         val unwind2 = Aggregation.unwind("\$rounds.questions")
-        val match3 = Aggregation.match(Criteria.where("rounds.questions.index").`is`(questionIndex))
+        val match3 = Aggregation.match(Criteria.where("rounds.questions.id").`is`(questionId))
         val group = Aggregation.group("\$rounds.questions")
         val project = Aggregation.project()
-                .and("\$_id.index").`as`("index")
-                .and("\$_id.value").`as`("value")
+                .and("\$_id.id").`as`("id")
+                .and("\$_id.question").`as`("question")
                 .and("\$_id.imageUri").`as`("imageUri")
                 .and("\$_id.type").`as`("type")
                 .and("\$_id.answer").`as`("answer")

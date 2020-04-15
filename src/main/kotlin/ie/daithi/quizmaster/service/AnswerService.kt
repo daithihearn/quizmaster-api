@@ -21,20 +21,20 @@ class AnswerService(
     private val publishService: PublishService
 ) {
 
-    fun submitAnswer(id: String, gameId: String, roundIndex: Int, questionIndex: Int, answer: String) {
+    fun submitAnswer(id: String, gameId: String, roundId: String, questionId: String, answer: String) {
 
         // 1. Check if they already submitted an answer
-        if (answerRepo.existsByGameIdAndPlayerIdAndRoundIndexAndQuestionIndex(
+        if (answerRepo.existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(
                 playerId = id,
                 gameId = gameId,
-                roundIndex = roundIndex,
-                questionIndex = questionIndex)) throw AnswerResubmissionException("Player already submitted and answer")
+                roundId = roundId,
+                questionId = questionId)) throw AnswerResubmissionException("Player already submitted and answer")
 
         // 2. Attempt to correct
         val game = gameService.get(gameId)
-        val answerObj = Answer(playerId = id, quizId = game.quizId!!, gameId = gameId, roundIndex = roundIndex, questionIndex = questionIndex, answer = answer)
-        val question = gameService.getQuestion(game.quizId!!, roundIndex, questionIndex)
-        scoringService.attemptScore(question!!.answer!!, answerObj, question.points)
+        val answerObj = Answer(playerId = id, quizId = game.quizId!!, gameId = gameId, roundId = roundId, questionId = questionId, answer = answer)
+        val question = gameService.getQuestion(game.quizId!!, roundId, questionId)
+        scoringService.attemptScore(question!!.answer, answerObj, question.points)
 
         // 3. Store answer
         answerRepo.save(answerObj)
@@ -49,7 +49,7 @@ class AnswerService(
         if(answers.isEmpty())
             return emptyList()
         return answers.map {
-            val question = gameService.getQuestion(it.quizId, it.roundIndex, it.questionIndex)
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
             QuestionAnswerWrapper(question!!, it)
         }
     }
@@ -88,8 +88,8 @@ class AnswerService(
 
     }
 
-    fun hasAnswered(gameId: String, playerId: String, roundIndex: Int, questionIndex: Int): Boolean {
-        return answerRepo.existsByGameIdAndPlayerIdAndRoundIndexAndQuestionIndex(gameId, playerId, roundIndex, questionIndex)
+    fun hasAnswered(gameId: String, playerId: String, roundId: String, questionId: String): Boolean {
+        return answerRepo.existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(gameId, playerId, roundId, questionId)
     }
 
     companion object {

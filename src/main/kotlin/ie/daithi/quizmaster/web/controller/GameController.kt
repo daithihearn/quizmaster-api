@@ -99,7 +99,7 @@ class GameController (
         if (content.type == PublishContentType.QUESTION
                 && content.content is PresentQuestion
                 && content.content != null
-                && answerService.hasAnswered(game.id!!, appUser.username!!, (content.content as PresentQuestion).roundIndex, (content.content as PresentQuestion).questionIndex))
+                && answerService.hasAnswered(game.id!!, appUser.username!!, (content.content as PresentQuestion).roundId, (content.content as PresentQuestion).questionId))
             return null
 
         return content

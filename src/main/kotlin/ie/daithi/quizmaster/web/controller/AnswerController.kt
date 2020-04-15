@@ -35,8 +35,8 @@ class AnswerController(
         answerService.submitAnswer(
                 id = id,
                 gameId = answer.gameId,
-                roundIndex = answer.roundIndex,
-                questionIndex = answer.questionIndex,
+                roundId = answer.roundId,
+                questionId = answer.questionId,
                 answer = answer.answer)
     }
 
