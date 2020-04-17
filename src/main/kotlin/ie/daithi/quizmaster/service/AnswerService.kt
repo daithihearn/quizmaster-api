@@ -3,6 +3,7 @@ package ie.daithi.quizmaster.service
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.repositories.AnswerRepo
 import ie.daithi.quizmaster.web.exceptions.AnswerResubmissionException
+import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.QuestionAnswerWrapper
 import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.enums.PublishContentType
@@ -35,7 +36,8 @@ class AnswerService(
         val game = gameService.get(gameId)
         val answerObj = Answer(playerId = id, quizId = game.quizId, gameId = gameId, roundId = roundId, questionId = questionId, answer = answer)
         val question = gameService.getQuestion(game.quizId, roundId, questionId)
-        scoringService.attemptScore(question!!.answer, answerObj, question.points)
+        if (!question.forceManualCorrection)
+            scoringService.attemptScore(question.answer, answerObj, question.points)
 
         // 3. Store answer
         answerRepo.save(answerObj)
@@ -51,7 +53,7 @@ class AnswerService(
             return emptyList()
         return answers.map {
             val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
-            QuestionAnswerWrapper(question!!, it)
+            QuestionAnswerWrapper(question, it)
         }
     }
 

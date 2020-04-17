@@ -23,8 +23,8 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import java.security.MessageDigest
 import java.security.SecureRandom
-import java.util.*
 
 @Service
 class GameService(
@@ -58,7 +58,9 @@ class GameService(
         lowerCaseEmails.forEach{
             val passwordByte = ByteArray(16)
             secureRandom.nextBytes(passwordByte)
-            val password = Base64.getEncoder().encodeToString(passwordByte)
+            val md = MessageDigest.getInstance("SHA-256")
+            val digest = md.digest(passwordByte)
+            val password = digest.fold("", { str, byt -> str + "%02x".format(byt) })
 
             val user = AppUser(username = it,
                     password = passwordEncoder.encode(password),
@@ -91,8 +93,7 @@ class GameService(
             throw NotFoundException("Game ${pointer.gameId} not found")
 
         // 2. Get question
-        val question = getQuestion(game.get().quizId!!, pointer.roundId, pointer.questionId)
-                ?: throw NotFoundException("Question not found ${pointer.gameId} -> ${pointer.roundId} -> ${pointer.questionId}")
+        val question = getQuestion(game.get().quizId, pointer.roundId, pointer.questionId)
 
         val presentQuestion = PresentQuestion(
                 gameId = pointer.gameId,
@@ -115,7 +116,7 @@ class GameService(
             { $group: { _id: { question: "$rounds.questions"  } }},
         ])
      */
-    fun getQuestion(quizId: String, roundId: String, questionId: String): Question? {
+    fun getQuestion(quizId: String, roundId: String, questionId: String): Question {
         val match1 = Aggregation.match(Criteria.where("id").`is`(quizId))
         val unwind1 = Aggregation.unwind("\$rounds")
         val match2 = Aggregation.match(Criteria.where("rounds.id").`is`(roundId))
@@ -132,6 +133,7 @@ class GameService(
 
         val aggregation = Aggregation.newAggregation(match1, unwind1, match2, unwind2, match3, group, project)
         return mongoOperations.aggregate(aggregation, Quiz::class.java, Question::class.java).uniqueMappedResult
+                ?: throw NotFoundException("Can't find question $quizId -> $roundId -> $questionId")
     }
 
     fun get(id: String): Game {
