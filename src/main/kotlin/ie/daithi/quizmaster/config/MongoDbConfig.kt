@@ -34,8 +34,8 @@ class MongoDbConfig (
 
         mongoOps.indexOps(Answer::class.java).ensureIndex(Index().on("playerId", Sort.Direction.ASC)
                 .on("gameId", Sort.Direction.ASC)
-                .on("roundIndex", Sort.Direction.ASC)
-                .on("questionIndex", Sort.Direction.ASC)
+                .on("roundId", Sort.Direction.ASC)
+                .on("questionId", Sort.Direction.ASC)
                 .unique().sparse())
     }
 }

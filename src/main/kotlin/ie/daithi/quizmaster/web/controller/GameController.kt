@@ -8,6 +8,7 @@ import ie.daithi.quizmaster.service.CurrentContentService
 import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.CreateGame
+import ie.daithi.quizmaster.web.model.PresentQuestion
 import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.model.enums.PublishContentType
 import io.swagger.annotations.*
@@ -50,6 +51,17 @@ class GameController (
         return gameService.getAll()
     }
 
+    @GetMapping("/admin/game/active")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Get all active games", notes = "Get all active games")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful")
+    )
+    @ResponseBody
+    fun getActive(): List<Game> {
+        return gameService.getActive()
+    }
+
     @PutMapping("/admin/game")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Create Game", notes = "Issues an email to all players with a link to allow them to access the game")
@@ -60,7 +72,31 @@ class GameController (
     @ResponseBody
     fun put(@RequestBody createGame: CreateGame): Game {
         val id = SecurityContextHolder.getContext().authentication.name
-        return gameService.create(id, createGame.playerEmails, createGame.quizId)
+        return gameService.create(id, createGame.name, createGame.playerEmails, createGame.quizId)
+    }
+
+    @PutMapping("/admin/game/finish")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Finish a Game", notes = "Finishes the game")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful"),
+            ApiResponse(code = 404, message = "Game not found")
+    )
+    @ResponseBody
+    fun finish(@RequestParam id: String) {
+        return gameService.finish(id)
+    }
+
+    @PutMapping("/admin/game/cancel")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Cancel a Game", notes = "Cancels the game")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful"),
+            ApiResponse(code = 404, message = "Game not found")
+    )
+    @ResponseBody
+    fun cancel(@RequestParam id: String) {
+        return gameService.cancel(id)
     }
 
     @DeleteMapping("/admin/game")
@@ -92,10 +128,13 @@ class GameController (
         val id = SecurityContextHolder.getContext().authentication.name
         val appUser = appUserRepo.findByUsernameIgnoreCase(id) ?: throw NotFoundException("User not found")
         val game = gameService.getByPlayerId(appUser.id!!)
-        val content = currentContentService.get(game.id!!)
+        val content = currentContentService.get(game.id!!)?: return null
 
         // If the content type is a question check if they have already answered it
-        if (content!!.type == PublishContentType.QUESTION && answerService.hasAnswered(game.id!!, appUser.username!!))
+        if (content.type == PublishContentType.QUESTION
+                && content.content is PresentQuestion
+                && content.content != null
+                && answerService.hasAnswered(game.id!!, appUser.username!!, (content.content as PresentQuestion).roundId, (content.content as PresentQuestion).questionId))
             return null
 
         return content

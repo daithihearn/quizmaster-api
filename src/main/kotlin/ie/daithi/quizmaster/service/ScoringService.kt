@@ -3,15 +3,21 @@ package ie.daithi.quizmaster.service
 import ie.daithi.quizmaster.model.Answer
 import org.apache.commons.text.similarity.FuzzyScore
 import org.apache.logging.log4j.LogManager
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class ScoringService {
+class ScoringService(
+        @Value("\${scoring.threshold.lower}")
+        private val lowerThreshold: Float,
+        @Value("\${scoring.threshold.upper}")
+        private val upperThreshold: Float
+) {
 
     fun isCorrectAnswer(correctAnswer: String, answer: String): Boolean {
         // 1. Determine a winning score
-        val winningScore = correctAnswer.length * 2
+        val winningScore = correctAnswer.length * upperThreshold
 
         // 2. Get Fuzzy match score
         val score = fuzzyScore.fuzzyScore(correctAnswer, answer)
@@ -23,7 +29,7 @@ class ScoringService {
 
     fun isInCorrectAnswer(correctAnswer: String, answer: String): Boolean {
         // 1. Determine a loosing score
-        val loosingScore = correctAnswer.length * 0.4
+        val loosingScore = correctAnswer.length * lowerThreshold
 
         // 2. Get Fuzzy match score
         val score = fuzzyScore.fuzzyScore(correctAnswer, answer)
@@ -34,9 +40,9 @@ class ScoringService {
     }
 
     fun attemptScore(answer: String, answerObj: Answer, points: Float?) {
-        if (isCorrectAnswer(answer, answerObj.answer!!)) {
+        if (isCorrectAnswer(answer, answerObj.answer)) {
             answerObj.score = points ?: 1f
-        } else if (isInCorrectAnswer(answer, answerObj.answer!!)) {
+        } else if (lowerThreshold > 0f && isInCorrectAnswer(answer, answerObj.answer)) {
             answerObj.score = 0f
         }
     }

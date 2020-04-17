@@ -3,6 +3,7 @@ package ie.daithi.quizmaster.web.controller
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.QuestionAnswerWrapper
 import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.SubmitAnswer
@@ -34,8 +35,8 @@ class AnswerController(
         answerService.submitAnswer(
                 id = id,
                 gameId = answer.gameId,
-                roundIndex = answer.roundIndex,
-                questionIndex = answer.questionIndex,
+                roundId = answer.roundId,
+                questionId = answer.questionId,
                 answer = answer.answer)
     }
 
@@ -59,7 +60,7 @@ class AnswerController(
             ApiResponse(code = 404, message = "Game not found")
     )
     @ResponseBody
-    fun getUnscoredAnswers(@RequestParam id: String): List<Answer> {
+    fun getUnscoredAnswers(@RequestParam id: String): List<QuestionAnswerWrapper> {
         return answerService.getUnscoredAnswers(id)
     }
 
@@ -75,5 +76,12 @@ class AnswerController(
     @ApiOperation(value = "Publish leaderboard", notes = "Publish leaderboard")
     fun publishLeaderboard(@RequestParam id: String) {
         answerService.publishLeaderboard(id)
+    }
+
+    @PutMapping("/admin/answer/publishAnswersForRound")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Publish answers for round", notes = "Publish answers for round")
+    fun publishAnswersForRound(@RequestParam gameId: String, @RequestParam roundId: String) {
+        answerService.publishAnswersForRound(gameId, roundId)
     }
 }

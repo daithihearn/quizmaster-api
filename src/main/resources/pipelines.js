@@ -25,7 +25,7 @@ db.quizzes.aggregate([
     { "$unwind" : "$rounds.questions"} , 
     { "$match" : { "rounds.questions.index" : 0}} , 
     { "$group" : { "_id" : "$rounds.questions"}} , 
-    { "$project" : { "_id" : 1 , "index" : "$_id.index" , "value" : "$_id.value" , "imageUri" : "$_id.imageUri" , "type" : "$_id.type" , "answer" : "$_id.answer" , "options" : "$_id.options"}}
+    { "$project" : { "_id" : 1 , "index" : "$_id.index" , "question" : "$_id.question" , "imageUri" : "$_id.imageUri" , "type" : "$_id.type" , "answer" : "$_id.answer" , "options" : "$_id.options"}}
 ])
 
 db.quizzes.aggregate([ 
@@ -35,7 +35,7 @@ db.quizzes.aggregate([
     { "$unwind" : "$rounds.questions"} , 
     { "$match" : { "rounds.questions.index" : 0}} , 
     { "$group" : { "_id" : "$rounds.questions"}} , 
-    { "$project" : { "index" : "$_id.index" , "value" : "$_id.value" , "imageUri" : "$_id.imageUri" , "type" : "$_id.type" , "answer" : "$_id.answer" , "options" : "$_id.options"}}
+    { "$project" : { "index" : "$_id.index" , "question" : "$_id.question" , "imageUri" : "$_id.imageUri" , "type" : "$_id.type" , "answer" : "$_id.answer" , "options" : "$_id.options"}}
 ])
 
 db.answers.aggregate([

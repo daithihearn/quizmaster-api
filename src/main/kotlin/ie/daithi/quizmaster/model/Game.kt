@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.model
 
+import ie.daithi.quizmaster.enumeration.GameStatus
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
@@ -7,7 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Game (
     @Id
     var id: String? = null,
-    var quizId: String? = null,
-    var quizMasterId: String? = null,
-    var players: List<Player> = emptyList()
+    val name: String,
+    var status: GameStatus,
+    val quizId: String,
+    val quizMasterId: String,
+    val players: List<Player>
 )

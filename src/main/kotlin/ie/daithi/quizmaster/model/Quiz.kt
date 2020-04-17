@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Quiz (
     @Id
     var id: String? = null,
-    var name: String? = null,
-    var rounds: List<Round>? = null
+    val name: String,
+    val rounds: List<Round> = emptyList()
 )

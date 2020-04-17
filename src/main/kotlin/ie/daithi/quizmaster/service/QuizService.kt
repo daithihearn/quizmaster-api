@@ -1,6 +1,7 @@
 package ie.daithi.quizmaster.service
 
 import ie.daithi.quizmaster.model.Quiz
+import ie.daithi.quizmaster.model.Round
 import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import org.apache.logging.log4j.LogManager

@@ -77,7 +77,7 @@ class ScoringServiceTest {
 //    }
 
     companion object {
-        val scoringService = ScoringService()
+        val scoringService = ScoringService(0.4f, 2f)
     }
 
 }
