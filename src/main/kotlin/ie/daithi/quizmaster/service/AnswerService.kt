@@ -115,6 +115,46 @@ class AnswerService(
         return answerRepo.existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(gameId, playerId, roundId, questionId)
     }
 
+    fun getAnswers(gameId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameId(gameId = gameId)
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
+    }
+
+    fun getAnswers(gameId: String, roundId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameIdAndRoundId(gameId = gameId, roundId = roundId )
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
+    }
+
+    fun getAnswers(gameId: String, roundId: String, playerId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameIdAndRoundIdAndPlayerId(gameId = gameId, roundId = roundId, playerId = playerId )
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
+    }
+
+    fun getAnswersForPlayer(gameId: String, playerId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameIdAndPlayerId(gameId = gameId, playerId = playerId)
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
+    }
+
     companion object {
         private val logger = LogManager.getLogger(this::class.java)
     }
