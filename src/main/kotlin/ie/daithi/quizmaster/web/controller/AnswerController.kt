@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.web.controller
 
+import ie.daithi.quizmaster.enumeration.AnswerMethod
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
@@ -46,6 +47,7 @@ class AnswerController(
     )
     @ResponseBody
     fun submitCorrection(@RequestBody answer: Answer) {
+        answer.method = AnswerMethod.MANUAL
         answerService.save(answer)
     }
 
