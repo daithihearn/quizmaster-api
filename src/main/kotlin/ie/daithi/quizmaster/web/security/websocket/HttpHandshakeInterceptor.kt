@@ -1,8 +1,8 @@
-package ie.daithi.quizmaster.web.security
+package ie.daithi.quizmaster.web.security.websocket
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import ie.daithi.quizmaster.web.security.websocket.StompPrincipal
+import ie.daithi.quizmaster.web.security.SecurityConstants
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler
@@ -26,9 +26,7 @@ class HttpHandshakeInterceptor(
                         .build()
                         .verify(tokenId.replace(SecurityConstants.TOKEN_PREFIX, ""))
                         .subject
-                if (user != null) {
-                    return StompPrincipal(user)
-                }
+                if (user != null) return StompPrincipal(user)
             }
         }
         return null
