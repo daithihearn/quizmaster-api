@@ -19,7 +19,7 @@ class PublishService(
         publishContent(recipients, topic, contentWrapped)
     }
 
-    fun publishContent(recipients: List<String>, topic: String, content: Any) {
+    fun publishContent(recipients: List<String>, topic: String, content: PublishContent) {
         val wsMessage = TextMessage(objectMapper.writeValueAsString(content))
         recipients.forEach {
             messageSender.convertAndSendToUser(it, topic, wsMessage)
@@ -28,9 +28,5 @@ class PublishService(
 
     fun publishContent(recipient: String, topic: String, content: Any, gameId: String, contentType: PublishContentType) {
         publishContent(listOf(recipient), topic, content, gameId, contentType)
-    }
-
-    fun publishContent(recipient: String, topic: String, content: Any) {
-        publishContent(listOf(recipient), topic, content)
     }
 }

@@ -44,7 +44,11 @@ class AnswerService(
 
         // 4. Publish to Quiz Master if not able to correct
         if (answerObj.score == null)
-            publishService.publishContent(game.quizMasterId, "/scoring", QuestionAnswerWrapper(question, answerObj))
+            publishService.publishContent(game.quizMasterId,
+                    "/scoring",
+                    QuestionAnswerWrapper(question, answerObj),
+                    game.id!!,
+                    PublishContentType.QUESTION_AND_ANSWER)
     }
 
     fun getUnscoredAnswers(gameId: String): List<QuestionAnswerWrapper> {
