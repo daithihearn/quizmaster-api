@@ -100,7 +100,8 @@ class GameService(
                 roundId = pointer.roundId,
                 questionId = pointer.questionId,
                 question = question.question,
-                imageUri = question.imageUri)
+                imageUri = question.imageUri,
+                mediaUri = question.mediaUri)
 
         // 3. Publish content to all players
         publishService.publishContent(game.get().players.map { it.displayName }, "/game", presentQuestion, pointer.gameId, PublishContentType.QUESTION)

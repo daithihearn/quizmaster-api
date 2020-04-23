@@ -3,7 +3,7 @@ package ie.daithi.quizmaster.service
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.repositories.AnswerRepo
 import ie.daithi.quizmaster.web.exceptions.AnswerResubmissionException
-import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.Leaderboard
 import ie.daithi.quizmaster.web.model.QuestionAnswerWrapper
 import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.enums.PublishContentType
@@ -68,33 +68,54 @@ class AnswerService(
         { "$project": { "playerId": "$_id", "score":"$score"}}
         ])
      */
-    fun getLeaderboard(id: String): List<Score> {
-        val match = Aggregation.match(Criteria.where("gameId").`is`(id))
+    fun getLeaderboard(gameId: String): Leaderboard {
+        val match = Aggregation.match(Criteria.where("gameId").`is`(gameId))
         val group = Aggregation.group("\$playerId").sum("score").`as`("score")
         val project = Aggregation.project()
                 .and("\$_id").`as`("playerId")
                 .and("\$score").`as`("score")
 
         val aggregation = Aggregation.newAggregation(match, group, project)
-        return mongoOperations.aggregate(aggregation, Answer::class.java, Score::class.java).mappedResults
+        val scores = mongoOperations.aggregate(aggregation, Answer::class.java, Score::class.java).mappedResults
+        return Leaderboard(gameId = gameId, scores = scores)
+    }
+
+    /**
+    db.answers.aggregate([
+    { "$match" : { gameId : "5e932fb170416b4231a2fa43", roundId: "id45" }},
+    { "$group" : { "_id" : "$playerId" , score: {$sum: { "$toDouble": "$score"}}}},
+    { "$project": { "playerId": "$_id", "score":"$score"}}
+    ])
+     */
+    fun getLeaderboard(gameId: String, roundId: String): Leaderboard {
+        val match = Aggregation.match(Criteria.where("gameId").`is`(gameId).and("roundId").`is`(roundId))
+        val group = Aggregation.group("\$playerId").sum("score").`as`("score")
+        val project = Aggregation.project()
+                .and("\$_id").`as`("playerId")
+                .and("\$score").`as`("score")
+
+        val aggregation = Aggregation.newAggregation(match, group, project)
+        val scores = mongoOperations.aggregate(aggregation, Answer::class.java, Score::class.java).mappedResults
+        return Leaderboard(gameId = gameId, roundId = roundId, scores = scores)
     }
 
     fun save(answer: Answer) {
         answerRepo.save(answer)
     }
 
-    fun publishLeaderboard(id: String) {
+    fun publishLeaderboard(gameId: String, roundId: String?) {
         // 1. Get the leaderboard
-        val leaderboard = getLeaderboard(id)
+        val leaderboard = if (roundId == null) getLeaderboard(gameId)
+        else getLeaderboard(gameId, roundId)
 
         // 2. Get the game
-        val game = gameService.get(id)
+        val game = gameService.get(gameId)
 
         // 3. Publish the leaderboard
         publishService.publishContent(recipients = game.players.map { it.displayName },
                 topic = "/game",
                 content = leaderboard,
-                gameId = id,
+                gameId = gameId,
                 contentType = PublishContentType.LEADERBOARD )
 
     }
