@@ -4,10 +4,7 @@ import ie.daithi.quizmaster.enumeration.AnswerMethod
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
-import ie.daithi.quizmaster.web.model.QuestionAnswerWrapper
-import ie.daithi.quizmaster.web.model.QuestionPointer
-import ie.daithi.quizmaster.web.model.Score
-import ie.daithi.quizmaster.web.model.SubmitAnswer
+import ie.daithi.quizmaster.web.model.*
 import io.swagger.annotations.*
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
@@ -83,15 +80,17 @@ class AnswerController(
     @GetMapping("/answer/leaderboard")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Get leaderboard", notes = "Get leaderboard")
-    fun getLeaderboard(@RequestParam id: String): List<Score> {
-        return answerService.getLeaderboard(id)
+    fun getLeaderboard(@RequestParam gameId: String, @RequestParam roundId: String?): Leaderboard {
+
+        if (roundId != null) return answerService.getLeaderboard(gameId, roundId)
+        return answerService.getLeaderboard(gameId)
     }
 
     @PutMapping("/admin/answer/publishLeaderboard")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Publish leaderboard", notes = "Publish leaderboard")
-    fun publishLeaderboard(@RequestParam id: String) {
-        answerService.publishLeaderboard(id)
+    fun publishLeaderboard(@RequestParam gameId: String, @RequestParam roundId: String?) {
+        answerService.publishLeaderboard(gameId, roundId)
     }
 
     @PutMapping("/admin/answer/publishAnswersForRound")
