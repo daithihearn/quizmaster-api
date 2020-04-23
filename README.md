@@ -2,7 +2,7 @@
 The API layer for the [Quizmaster application](https://github.com/daithihearn/quizmaster)
 
 # Reqirements
-To run this application you need a MongoDB instance to point to. The MongoDB URI can be configured in the `setupEnvironmentVariables.sh` script.
+To run this application you need a MongoDB instance to point to. The MongoDB URI can be configured in the `start.sh` script.
 If you use docker-compose then you don't need a MongoDB instance as a mongo container will be used.
 
 # Technical Stack

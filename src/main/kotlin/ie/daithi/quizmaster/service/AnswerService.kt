@@ -44,7 +44,11 @@ class AnswerService(
 
         // 4. Publish to Quiz Master if not able to correct
         if (answerObj.score == null)
-            publishService.publishContent(game.quizMasterId, "/scoring", QuestionAnswerWrapper(question, answerObj))
+            publishService.publishContent(game.quizMasterId,
+                    "/scoring",
+                    QuestionAnswerWrapper(question, answerObj),
+                    game.id!!,
+                    PublishContentType.QUESTION_AND_ANSWER)
     }
 
     fun getUnscoredAnswers(gameId: String): List<QuestionAnswerWrapper> {
@@ -113,6 +117,46 @@ class AnswerService(
 
     fun hasAnswered(gameId: String, playerId: String, roundId: String, questionId: String): Boolean {
         return answerRepo.existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(gameId, playerId, roundId, questionId)
+    }
+
+    fun getAnswers(gameId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameId(gameId = gameId)
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
+    }
+
+    fun getAnswers(gameId: String, roundId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameIdAndRoundId(gameId = gameId, roundId = roundId )
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
+    }
+
+    fun getAnswers(gameId: String, roundId: String, playerId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameIdAndRoundIdAndPlayerId(gameId = gameId, roundId = roundId, playerId = playerId )
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
+    }
+
+    fun getAnswersForPlayer(gameId: String, playerId: String): List<QuestionAnswerWrapper> {
+        val answers = answerRepo.findByGameIdAndPlayerId(gameId = gameId, playerId = playerId)
+        if(answers.isEmpty())
+            return emptyList()
+        return answers.map {
+            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            QuestionAnswerWrapper(question, it)
+        }
     }
 
     companion object {

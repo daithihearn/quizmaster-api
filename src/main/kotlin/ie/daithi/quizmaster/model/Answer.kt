@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.model
 
+import ie.daithi.quizmaster.enumeration.AnswerMethod
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection="answers")
@@ -11,5 +12,6 @@ data class Answer(
         val roundId: String,
         val questionId: String,
         val answer: String,
-        var score: Float? = null
+        var score: Float? = null,
+        var method: AnswerMethod? = null
 )

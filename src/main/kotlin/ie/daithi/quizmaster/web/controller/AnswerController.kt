@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.web.controller
 
+import ie.daithi.quizmaster.enumeration.AnswerMethod
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
@@ -7,10 +8,7 @@ import ie.daithi.quizmaster.web.model.QuestionAnswerWrapper
 import ie.daithi.quizmaster.web.model.QuestionPointer
 import ie.daithi.quizmaster.web.model.Score
 import ie.daithi.quizmaster.web.model.SubmitAnswer
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.annotations.*
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
@@ -49,6 +47,7 @@ class AnswerController(
     )
     @ResponseBody
     fun submitCorrection(@RequestBody answer: Answer) {
+        answer.method = AnswerMethod.MANUAL
         answerService.save(answer)
     }
 
@@ -62,6 +61,23 @@ class AnswerController(
     @ResponseBody
     fun getUnscoredAnswers(@RequestParam id: String): List<QuestionAnswerWrapper> {
         return answerService.getUnscoredAnswers(id)
+    }
+
+    @GetMapping("/admin/answer")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Get leaderboard", notes = "Get leaderboard")
+    fun getAnswers(@ApiParam(required = true) @RequestParam gameId: String,
+                   @ApiParam(required = false) @RequestParam roundId: String?,
+                   @ApiParam(required = false) @RequestParam playerId: String?): List<QuestionAnswerWrapper> {
+
+        return if (roundId == null && playerId == null)
+            answerService.getAnswers(gameId)
+        else if (roundId == null && playerId != null)
+            answerService.getAnswersForPlayer(gameId, playerId)
+        else if (playerId == null && roundId != null)
+            answerService.getAnswers(gameId, roundId)
+        else
+            answerService.getAnswers(gameId, roundId!!, playerId!!)
     }
 
     @GetMapping("/answer/leaderboard")

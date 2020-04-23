@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.service
 
+import ie.daithi.quizmaster.enumeration.AnswerMethod
 import ie.daithi.quizmaster.model.Answer
 import org.apache.commons.text.similarity.FuzzyScore
 import org.apache.logging.log4j.LogManager
@@ -42,8 +43,10 @@ class ScoringService(
     fun attemptScore(answer: String, answerObj: Answer, points: Float?) {
         if (isCorrectAnswer(answer, answerObj.answer)) {
             answerObj.score = points ?: 1f
+            answerObj.method = AnswerMethod.AUTOMATIC
         } else if (lowerThreshold > 0f && isInCorrectAnswer(answer, answerObj.answer)) {
             answerObj.score = 0f
+            answerObj.method = AnswerMethod.AUTOMATIC
         }
     }
 

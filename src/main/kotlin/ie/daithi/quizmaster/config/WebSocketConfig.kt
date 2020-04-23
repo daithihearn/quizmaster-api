@@ -1,6 +1,6 @@
 package ie.daithi.quizmaster.config
 
-import ie.daithi.quizmaster.web.security.HttpHandshakeInterceptor
+import ie.daithi.quizmaster.web.security.websocket.HttpHandshakeInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
