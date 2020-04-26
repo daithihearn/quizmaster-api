@@ -35,7 +35,8 @@ class GameService(
         private val appUserRepo: AppUserRepo,
         private val passwordEncoder: BCryptPasswordEncoder,
         private val mongoOperations: MongoOperations,
-        private val publishService: PublishService
+        private val publishService: PublishService,
+        private val currentContentService: CurrentContentService
 ) {
     fun create(quizMasterId: String, name: String, playerEmails: List<String>, quizId: String): Game {
         logger.info("Attempting to start a game for quizId: $quizId")
@@ -104,7 +105,13 @@ class GameService(
                 mediaUri = question.mediaUri)
 
         // 3. Publish content to all players
-        publishService.publishContent(game.get().players.map { it.displayName }, "/game", presentQuestion, pointer.gameId, PublishContentType.QUESTION)
+        currentContentService.save(
+                publishService.publishContent(recipients = game.get().players.map { it.displayName },
+                        topic = "/game",
+                        content = presentQuestion,
+                        gameId = pointer.gameId,
+                        contentType = PublishContentType.QUESTION)
+        )
     }
 
     /**

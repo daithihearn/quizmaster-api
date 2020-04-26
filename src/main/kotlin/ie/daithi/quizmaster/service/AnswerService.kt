@@ -20,7 +20,8 @@ class AnswerService(
     private val quizService: QuizService,
     private val scoringService: ScoringService,
     private val mongoOperations: MongoOperations,
-    private val publishService: PublishService
+    private val publishService: PublishService,
+    private val currentContentService: CurrentContentService
 ) {
 
     fun submitAnswer(playerId: String, gameId: String, roundId: String, questionId: String, answer: String) {
@@ -49,6 +50,12 @@ class AnswerService(
                     QuestionAnswerWrapper(question, answerObj),
                     game.id!!,
                     PublishContentType.QUESTION_AND_ANSWER)
+        else
+            publishService.publishContent(game.quizMasterId,
+                    "/scoring",
+                    playerId,
+                    game.id!!,
+                    PublishContentType.AUTO_ANSWERED)
     }
 
     fun getUnscoredAnswers(gameId: String): List<QuestionAnswerWrapper> {
@@ -112,11 +119,13 @@ class AnswerService(
         val game = gameService.get(gameId)
 
         // 3. Publish the leaderboard
-        publishService.publishContent(recipients = game.players.map { it.displayName },
+        currentContentService.save(
+                publishService.publishContent(recipients = game.players.map { it.displayName },
                 topic = "/game",
                 content = leaderboard,
                 gameId = gameId,
                 contentType = PublishContentType.LEADERBOARD )
+        )
 
     }
 
@@ -129,11 +138,13 @@ class AnswerService(
         val round = quiz.rounds.first { it.id == roundId }
 
         // 3. Publish round
-        publishService.publishContent(recipients = game.players.map { it.displayName },
+        currentContentService.save(
+                publishService.publishContent(recipients = game.players.map { it.displayName },
                 topic = "/game",
                 content = round,
                 gameId = gameId,
                 contentType = PublishContentType.ROUND_SUMMARY )
+        )
     }
 
     fun hasAnswered(gameId: String, playerId: String, roundId: String, questionId: String): Boolean {
