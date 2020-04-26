@@ -12,5 +12,5 @@ interface AnswerRepo: MongoRepository<Answer, String> {
     fun findByGameIdAndScore(gameId: String, score: Float?): List<Answer>
 
     fun existsByGameIdAndPlayerId(gameId: String, playerId: String): Boolean
-    fun existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(playerId: String, gameId: String, roundId: String, questionId: String): Boolean
+    fun existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(gameId: String, playerId: String, roundId: String, questionId: String): Boolean
 }

@@ -23,18 +23,18 @@ class AnswerService(
     private val publishService: PublishService
 ) {
 
-    fun submitAnswer(id: String, gameId: String, roundId: String, questionId: String, answer: String) {
+    fun submitAnswer(playerId: String, gameId: String, roundId: String, questionId: String, answer: String) {
 
         // 1. Check if they already submitted an answer
         if (answerRepo.existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(
-                playerId = id,
-                gameId = gameId,
-                roundId = roundId,
-                questionId = questionId)) throw AnswerResubmissionException("Player already submitted and answer")
+                        gameId = gameId,
+                        playerId = playerId,
+                        roundId = roundId,
+                        questionId = questionId)) throw AnswerResubmissionException("You have already submitted and answer for this question")
 
         // 2. Attempt to correct
         val game = gameService.get(gameId)
-        val answerObj = Answer(playerId = id, quizId = game.quizId, gameId = gameId, roundId = roundId, questionId = questionId, answer = answer)
+        val answerObj = Answer(playerId = playerId, quizId = game.quizId, gameId = gameId, roundId = roundId, questionId = questionId, answer = answer)
         val question = gameService.getQuestion(game.quizId, roundId, questionId)
         if (!question.forceManualCorrection)
             scoringService.attemptScore(question.answer, answerObj, question.points)

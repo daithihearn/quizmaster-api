@@ -10,6 +10,7 @@ If you use docker-compose then you don't need a MongoDB instance as a mongo cont
 - Spring-Boot
 - Swagger
 - MongoDB
+- Gradle
 
 # Building
 To build this app into a spring boot jar simply run the `./build.sh` script.
@@ -20,7 +21,6 @@ To run using Docker see the [top level project](https://github.com/daithihearn/q
 
 # Frontend
 The [frontend](https://github.com/daithihearn/quizmaster-frontend) is packages as a webjar in the `/libs` folder of this project. Running the `./build.sh` script in the [frontend](https://github.com/daithihearn/quizmaster-frontend) will update this webjar. The [frontend](https://github.com/daithihearn/quizmaster-frontend) can also be run separately. See the README in [frontend](https://github.com/daithihearn/quizmaster-frontend) for more details.
-
 
 # Running (Develop mode)
 To run this app locally in development mode simply run `./start.sh`. There is no need to run the `./build.sh` script first.

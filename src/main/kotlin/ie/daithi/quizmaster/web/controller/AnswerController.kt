@@ -28,7 +28,7 @@ class AnswerController(
     fun submitAnswer(@RequestBody answer: SubmitAnswer) {
         val id = SecurityContextHolder.getContext().authentication.name
         answerService.submitAnswer(
-                id = id,
+                playerId = id,
                 gameId = answer.gameId,
                 roundId = answer.roundId,
                 questionId = answer.questionId,
