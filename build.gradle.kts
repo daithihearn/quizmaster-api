@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-	id("org.springframework.boot") version "2.1.7.RELEASE"
+	id("org.springframework.boot") version "2.2.6.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	id("maven-publish")
 	kotlin("jvm") version "1.3.61"
@@ -43,7 +43,7 @@ version = "0.1.0-SNAPSHOT"
 
 description = "api"
 
-val springBootVersion: String = "2.1.7.RELEASE"
+val springBootVersion: String = "2.2.6.RELEASE"
 val swaggerVersion: String = "2.9.2"
 
 dependencies {
