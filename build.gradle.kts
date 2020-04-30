@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
 	val kotlinVersion = "1.3.50"
-	val springBootVersion = "2.1.7.RELEASE"
+	val springBootVersion = "2.2.6.RELEASE"
 	repositories {
 		mavenLocal()
 		mavenCentral()
@@ -14,11 +14,11 @@ buildscript {
 }
 
 plugins {
-	id("org.springframework.boot") version "2.2.6.RELEASE"
+	id("org.springframework.boot") version "2.1.7.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	id("maven-publish")
 	kotlin("jvm") version "1.3.61"
-	kotlin("plugin.spring") version "1.3.61"
+	kotlin("plugin.spring") version "1.3.71"
 }
 
 apply(plugin = "maven")
@@ -40,11 +40,10 @@ repositories {
 
 group = "ie.daithi.quizmaster"
 version = "0.1.0-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 description = "api"
 
-val springBootVersion: String = "2.2.6.RELEASE"
+val springBootVersion: String = "2.1.7.RELEASE"
 val swaggerVersion: String = "2.9.2"
 
 dependencies {
@@ -55,8 +54,8 @@ dependencies {
 	//External Dependencies
 
 	//Kotlin dependencies
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.72")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib:1.3.72")
 
 	//Spring dependencies
 	implementation("org.springframework.boot:spring-boot-starter")

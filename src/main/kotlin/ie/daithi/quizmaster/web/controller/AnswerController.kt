@@ -62,7 +62,7 @@ class AnswerController(
 
     @GetMapping("/admin/answer")
     @ResponseStatus(value = HttpStatus.OK)
-    @ApiOperation(value = "Get leaderboard", notes = "Get leaderboard")
+    @ApiOperation(value = "Get answers", notes = "Get answers")
     fun getAnswers(@ApiParam(required = true) @RequestParam gameId: String,
                    @ApiParam(required = false) @RequestParam roundId: String?,
                    @ApiParam(required = false) @RequestParam playerId: String?): List<QuestionAnswerWrapper> {
