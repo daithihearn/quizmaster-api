@@ -118,18 +118,18 @@ class GameService(
      *   db.quizzes.aggregate([
             { $match: {_id: ObjectId('5e91bedf70416b47e5db30db')}},
             { $unwind: "$rounds"},
-            { $match: {"rounds.id": 0}},
+            { $match: {"rounds._id": 0}},
             { $unwind: "$rounds.questions"},
-            { $match: {"rounds.questions.id": 0}},
+            { $match: {"rounds.questions._id": 0}},
             { $group: { _id: { question: "$rounds.questions"  } }},
         ])
      */
     fun getQuestion(quizId: String, roundId: String, questionId: String): Question {
         val match1 = Aggregation.match(Criteria.where("id").`is`(quizId))
         val unwind1 = Aggregation.unwind("\$rounds")
-        val match2 = Aggregation.match(Criteria.where("rounds.id").`is`(roundId))
+        val match2 = Aggregation.match(Criteria.where("rounds._id").`is`(roundId))
         val unwind2 = Aggregation.unwind("\$rounds.questions")
-        val match3 = Aggregation.match(Criteria.where("rounds.questions.id").`is`(questionId))
+        val match3 = Aggregation.match(Criteria.where("rounds.questions._id").`is`(questionId))
         val group = Aggregation.group("\$rounds.questions")
         val project = Aggregation.project()
                 .and("\$_id.id").`as`("id")
