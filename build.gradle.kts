@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-	id("org.springframework.boot") version "2.1.7.RELEASE"
+	id("org.springframework.boot") version "2.2.6.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	id("maven-publish")
 	kotlin("jvm") version "1.3.61"
@@ -39,7 +39,7 @@ repositories {
 }
 
 group = "ie.daithi.quizmaster"
-version = "0.0.1-SNAPSHOT"
+version = "0.1.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 description = "api"
@@ -64,10 +64,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
-	implementation("org.springframework.boot:spring-boot-starter-mail:$springBootVersion")
-	testImplementation("org.springframework.boot:spring-boot-starter-test") {
-		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-	}
+	testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
 
 	//Springfox
 	implementation("io.springfox:springfox-swagger2:$swaggerVersion")
@@ -84,6 +81,6 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "1.8"
+		jvmTarget = "12"
 	}
 }

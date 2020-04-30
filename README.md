@@ -14,7 +14,7 @@ If you use docker-compose then you don't need a MongoDB instance as a mongo cont
 
 # Building
 To build this app into a spring boot jar simply run the `./build.sh` script.
-The jar will be installed in the local maven repo and can be run with `java -jar ~/.m2/repository/ie/daithi/quizmaster/quizmaster-api/0.0.1-SNAPSHOT/quizmaster-api-0.0.1-SNAPSHOT.jar`
+The jar will be installed in the local maven repo and can be run with `java -jar ~/.m2/repository/ie/daithi/quizmaster/quizmaster-api/0.1.0-SNAPSHOT/quizmaster-api-0.1.0-SNAPSHOT.jar`
 
 # Docker Compose
 To run using Docker see the [top level project](https://github.com/daithihearn/quizmaster)'s README file 
