@@ -74,6 +74,8 @@ dependencies {
 	implementation("com.auth0:java-jwt:3.10.2")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
 	implementation("org.apache.commons:commons-text:1.8")
+	implementation("com.cloudinary:cloudinary-http44:1.25.0")
+
 
 }
 

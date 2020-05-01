@@ -3,6 +3,7 @@ package ie.daithi.quizmaster.web.controller
 import ie.daithi.quizmaster.model.Quiz
 import ie.daithi.quizmaster.service.QuizService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
+import ie.daithi.quizmaster.web.model.DataWrapper
 import io.swagger.annotations.*
 import org.apache.logging.log4j.LogManager
 import org.springframework.http.HttpStatus
@@ -62,6 +63,17 @@ class QuizController (
     fun deleteQuiz(@ApiParam(required = true, value = "The unique ID for a quiz")
                    @RequestParam(required = true) id: String) {
         quizService.delete(id)
+    }
+
+    @PostMapping("/uploadImage")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Upload Media", notes = "Upload media content")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful")
+    )
+    @ResponseBody
+    fun uploadImage(@RequestBody media: DataWrapper): String {
+        return quizService.uploadImage(media.data)
     }
 
     companion object {
