@@ -1,6 +1,7 @@
 package ie.daithi.quizmaster.web.controller
 
 import ie.daithi.quizmaster.model.Quiz
+import ie.daithi.quizmaster.service.CloudService
 import ie.daithi.quizmaster.service.QuizService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.DataWrapper
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/admin/quiz")
 @Api(tags = ["Quiz"], description = "Endpoints that relate to CRUD operations on Quizzes")
 class QuizController (
-        private val quizService: QuizService
+        private val quizService: QuizService,
+        private val cloudService: CloudService
 ){
 
     @GetMapping
@@ -73,7 +75,7 @@ class QuizController (
     )
     @ResponseBody
     fun uploadImage(@RequestBody media: DataWrapper): String {
-        return quizService.uploadImage(media.data)
+        return cloudService.uploadImage(media.data)
     }
 
     companion object {
