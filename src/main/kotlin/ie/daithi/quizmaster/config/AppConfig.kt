@@ -1,6 +1,5 @@
 package ie.daithi.quizmaster.config
 
-import com.cloudinary.Cloudinary
 import com.sendgrid.SendGrid
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -26,9 +25,7 @@ class AppConfig(
         @Value("\${password.encoder.seed}")
         private val seed: String,
         @Value("\${sendgrid.api.key}")
-        private val sendgridApiKey: String,
-        @Value("\${cloudinary.url}")
-        private val cloudinaryUrl: String
+        private val sendgridApiKey: String
 ) {
 
     @Bean
@@ -76,10 +73,5 @@ class AppConfig(
     @Bean("emailClient")
     fun emailClient(): SendGrid {
         return SendGrid(sendgridApiKey)
-    }
-
-    @Bean("cloudinary")
-    fun cloudinary(): Cloudinary {
-        return Cloudinary(cloudinaryUrl)
     }
 }
