@@ -212,7 +212,8 @@ class GameService(
 
     fun finish(gameId: String) {
         val game = get(gameId)
-        if( game.status == GameStatus.ACTIVE) throw InvalidSatusException("Can only finish a game that is in STARTED state not ${game.status}")
+        if( game.status == GameStatus.CANCELLED) throw InvalidSatusException("Game has been cancelled")
+        else if (game.status == GameStatus.COMPLETED) throw InvalidSatusException("Game is already completed")
         game.status = GameStatus.COMPLETED
         gameRepo.save(game)
     }

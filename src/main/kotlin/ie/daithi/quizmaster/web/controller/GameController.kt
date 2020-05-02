@@ -36,8 +36,8 @@ class GameController (
             ApiResponse(code = 404, message = "Game not found")
     )
     @ResponseBody
-    fun get(@RequestParam id: String): Game {
-        return gameService.get(id)
+    fun get(@RequestParam gameId: String): Game {
+        return gameService.get(gameId)
     }
 
     @GetMapping("/admin/game/all")
