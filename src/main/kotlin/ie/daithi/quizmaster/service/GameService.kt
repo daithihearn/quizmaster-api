@@ -55,22 +55,9 @@ class GameService(
         }
 
         // 4. Create Players and Issue emails
-        val users = arrayListOf<AppUser>()
+        val players = arrayListOf<Player>()
         lowerCaseEmails.forEach{
-            val passwordByte = ByteArray(16)
-            secureRandom.nextBytes(passwordByte)
-            val md = MessageDigest.getInstance("SHA-256")
-            val digest = md.digest(passwordByte)
-            val password = digest.fold("", { str, byt -> str + "%02x".format(byt) })
-
-            val user = AppUser(username = it,
-                    password = passwordEncoder.encode(password),
-                    authorities = listOf(Authority.PLAYER))
-
-            appUserRepo.deleteByUsernameIgnoreCase(it)
-            appUserRepo.save(user)
-            users.add(user)
-            emailService.sendQuizInvite(it, password)
+            players.add(createPlayer(it))
         }
 
         // 5. Create Game
@@ -78,12 +65,68 @@ class GameService(
                 quizMasterId = quizMasterId,
                 status = GameStatus.ACTIVE,
                 name = name,
-                players = users.map { Player(id = it.id!!, displayName = it.username!!) })
+                players = players)
 
         gameRepo.save(game)
 
         logger.info("Game started successfully ${game.id}")
         return game
+    }
+
+    fun removePlayer(gameId: String, playerId: String) {
+        // 1. Get game
+        val gameOpt = gameRepo.findById(gameId)
+        if (!gameOpt.isPresent) throw NotFoundException("Game $gameId not found")
+        val game = gameOpt.get()
+
+        // 2. Remove Player
+        val userOpt = appUserRepo.findById(playerId)
+        if (!userOpt.isPresent) throw NotFoundException("User $playerId not found")
+        val user = userOpt.get()
+
+        game.players = game.players.minus(Player(id = user.id!!, displayName = user.username!!))
+
+        // 3. Save Game
+        gameRepo.save(game)
+    }
+
+    fun addPlayer(gameId: String, playerEmail: String) {
+
+        // 1. Validate email
+        if (!emailValidator.isValid(playerEmail))
+            throw InvalidEmailException("Invalid email $playerEmail")
+
+        // 2. Get game
+        val gameOpt = gameRepo.findById(gameId)
+        if (!gameOpt.isPresent) throw NotFoundException("Game $gameId not found")
+        val game = gameOpt.get()
+
+        // 3. Create player
+        val player = createPlayer(playerEmail)
+
+        // 4. Add player
+        game.players = game.players.plus(player)
+
+        // 5. Save Game
+        gameRepo.save(game)
+    }
+
+    fun createPlayer(username: String): Player {
+        val passwordByte = ByteArray(16)
+        secureRandom.nextBytes(passwordByte)
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(passwordByte)
+        val password = digest.fold("", { str, byt -> str + "%02x".format(byt) })
+
+        val user = AppUser(username = username,
+                password = passwordEncoder.encode(password),
+                authorities = listOf(Authority.PLAYER))
+
+        appUserRepo.deleteByUsernameIgnoreCase(username)
+        appUserRepo.save(user)
+        emailService.sendQuizInvite(username, password)
+
+        return Player(id = user.id!!, displayName = user.username!!)
     }
 
     fun publishQuestion(pointer: QuestionPointer) {
@@ -144,15 +187,15 @@ class GameService(
                 ?: throw NotFoundException("Can't find question $quizId -> $roundId -> $questionId")
     }
 
-    fun get(id: String): Game {
-        val game = gameRepo.findById(id)
+    fun get(gameId: String): Game {
+        val game = gameRepo.findById(gameId)
         if (!game.isPresent)
-            throw NotFoundException("Game $id not found")
+            throw NotFoundException("Game $gameId not found")
         return game.get()
     }
 
-    fun delete(id: String) {
-        gameRepo.deleteById(id)
+    fun delete(gameId: String) {
+        gameRepo.deleteById(gameId)
     }
 
     fun getAll(): List<Game> {
@@ -163,19 +206,19 @@ class GameService(
         return gameRepo.findAllByStatus(GameStatus.ACTIVE)
     }
 
-    fun getByPlayerId(id: String): Game {
-        return gameRepo.getByPlayerId(id)
+    fun getByPlayerId(gameId: String): Game {
+        return gameRepo.getByPlayerId(gameId)
     }
 
-    fun finish(id: String) {
-        val game = get(id)
+    fun finish(gameId: String) {
+        val game = get(gameId)
         if( game.status == GameStatus.ACTIVE) throw InvalidSatusException("Can only finish a game that is in STARTED state not ${game.status}")
         game.status = GameStatus.COMPLETED
         gameRepo.save(game)
     }
 
-    fun cancel(id: String) {
-        val game = get(id)
+    fun cancel(gameId: String) {
+        val game = get(gameId)
         if( game.status == GameStatus.CANCELLED) throw InvalidSatusException("Game is already in CANCELLED state")
         game.status = GameStatus.CANCELLED
         gameRepo.save(game)

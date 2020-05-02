@@ -12,5 +12,5 @@ data class Game (
     var status: GameStatus,
     val quizId: String,
     val quizMasterId: String,
-    val players: List<Player>
+    var players: List<Player>
 )

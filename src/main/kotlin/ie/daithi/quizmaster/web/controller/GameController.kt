@@ -75,6 +75,30 @@ class GameController (
         return gameService.create(id, createGame.name, createGame.playerEmails, createGame.quizId)
     }
 
+    @PutMapping("/admin/game/addPlayer")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Add player", notes = "Adds player to the game")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful"),
+            ApiResponse(code = 502, message = "An error occurred when attempting to send email")
+    )
+    fun addPlayer(@RequestParam gameId: String, @RequestParam playerEmail: String) {
+        gameService.addPlayer(gameId, playerEmail)
+    }
+
+    @DeleteMapping("/admin/game/removePlayer")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Remove player from game", notes = "Remove player from game")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful"),
+            ApiResponse(code = 502, message = "An error occurred when attempting to send email")
+    )
+    fun removePlayer(gameId: String, playerId: String) {
+        return gameService.removePlayer(gameId, playerId)
+    }
+
+
+
     @PutMapping("/admin/game/finish")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Finish a Game", notes = "Finishes the game")
@@ -83,8 +107,8 @@ class GameController (
             ApiResponse(code = 404, message = "Game not found")
     )
     @ResponseBody
-    fun finish(@RequestParam id: String) {
-        return gameService.finish(id)
+    fun finish(@RequestParam gameId: String) {
+        return gameService.finish(gameId)
     }
 
     @PutMapping("/admin/game/cancel")
@@ -95,8 +119,8 @@ class GameController (
             ApiResponse(code = 404, message = "Game not found")
     )
     @ResponseBody
-    fun cancel(@RequestParam id: String) {
-        return gameService.cancel(id)
+    fun cancel(@RequestParam gameId: String) {
+        return gameService.cancel(gameId)
     }
 
     @DeleteMapping("/admin/game")
@@ -106,8 +130,8 @@ class GameController (
             ApiResponse(code = 200, message = "Request successful"),
             ApiResponse(code = 404, message = "Game not found")
     )
-    fun delete(@RequestParam id: String) {
-        return gameService.delete(id)
+    fun delete(@RequestParam gameId: String) {
+        return gameService.delete(gameId)
     }
 
     @PutMapping("/admin/game/publishQuestion")
