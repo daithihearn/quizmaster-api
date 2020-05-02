@@ -14,6 +14,7 @@ export PLAYER_LOGIN_URL=http://localhost:8080/\#/autologin
 export CORS_WHITELIST=http://localhost:3000
 export SCORING_THRESHOLD_LOWER=0f
 export SCORING_THRESHOLD_UPPER=2.4f
+export CLOUDINARY_URL=YOUR URL GOES HERE
 
 echo "
     Starting app...."

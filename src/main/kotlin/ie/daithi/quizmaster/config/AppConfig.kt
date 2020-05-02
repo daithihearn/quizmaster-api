@@ -58,7 +58,7 @@ class AppConfig(
     private fun apiInfo(): ApiInfo {
         return ApiInfo( "Quizmaster API",
                 "A RESTFul API for the Quizmaster application",
-                "0.0.1",
+                "0.1.0",
                 "blah",
                 Contact("Daithi Hearn","https://github.com/daithihearn", "daithi.hearn@gmail.com"),
                 "", "", Collections.emptyList())
@@ -74,5 +74,4 @@ class AppConfig(
     fun emailClient(): SendGrid {
         return SendGrid(sendgridApiKey)
     }
-
 }

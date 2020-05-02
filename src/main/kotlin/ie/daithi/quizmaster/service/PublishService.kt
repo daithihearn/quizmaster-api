@@ -10,23 +10,23 @@ import org.springframework.web.socket.TextMessage
 @Service
 class PublishService(
         private val messageSender: SimpMessagingTemplate,
-        private val objectMapper: ObjectMapper,
-        private val currentContentService: CurrentContentService
+        private val objectMapper: ObjectMapper
 ) {
-    fun publishContent(recipients: List<String>, topic: String, content: Any, gameId: String, contentType: PublishContentType) {
+    fun publishContent(recipients: List<String>, topic: String, content: Any, gameId: String, contentType: PublishContentType): PublishContent {
         val contentWrapped = PublishContent(gameId = gameId, type = contentType, content = content)
-        currentContentService.save(contentWrapped)
         publishContent(recipients, topic, contentWrapped)
+        return contentWrapped
     }
 
-    fun publishContent(recipients: List<String>, topic: String, content: PublishContent) {
+    fun publishContent(recipients: List<String>, topic: String, content: PublishContent): PublishContent {
         val wsMessage = TextMessage(objectMapper.writeValueAsString(content))
         recipients.forEach {
             messageSender.convertAndSendToUser(it, topic, wsMessage)
         }
+        return content
     }
 
-    fun publishContent(recipient: String, topic: String, content: Any, gameId: String, contentType: PublishContentType) {
-        publishContent(listOf(recipient), topic, content, gameId, contentType)
+    fun publishContent(recipient: String, topic: String, content: Any, gameId: String, contentType: PublishContentType): PublishContent {
+        return publishContent(listOf(recipient), topic, content, gameId, contentType)
     }
 }
