@@ -72,7 +72,7 @@ class GameController (
     @ResponseBody
     fun put(@RequestBody createGame: CreateGame): Game {
         val id = SecurityContextHolder.getContext().authentication.name
-        return gameService.create(id, createGame.name, createGame.playerEmails, createGame.quizId)
+        return gameService.create(id, createGame.name, createGame.playerEmails, createGame.quizId, createGame.emailMessage)
     }
 
     @PutMapping("/admin/game/addPlayer")

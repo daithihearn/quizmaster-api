@@ -38,7 +38,7 @@ class GameService(
         private val publishService: PublishService,
         private val currentContentService: CurrentContentService
 ) {
-    fun create(quizMasterId: String, name: String, playerEmails: List<String>, quizId: String): Game {
+    fun create(quizMasterId: String, name: String, playerEmails: List<String>, quizId: String, emailMessage: String): Game {
         logger.info("Attempting to start a game for quizId: $quizId")
 
         // 1. Check that quiz exists
@@ -57,7 +57,7 @@ class GameService(
         // 4. Create Players and Issue emails
         val players = arrayListOf<Player>()
         lowerCaseEmails.forEach{
-            players.add(createPlayer(it))
+            players.add(createPlayer(it, emailMessage))
         }
 
         // 5. Create Game
@@ -65,7 +65,8 @@ class GameService(
                 quizMasterId = quizMasterId,
                 status = GameStatus.ACTIVE,
                 name = name,
-                players = players)
+                players = players,
+                emailMessage = emailMessage)
 
         gameRepo.save(game)
 
@@ -102,7 +103,7 @@ class GameService(
         val game = gameOpt.get()
 
         // 3. Create player
-        val player = createPlayer(playerEmail)
+        val player = createPlayer(playerEmail, game.emailMessage)
 
         // 4. Add player
         game.players = game.players.plus(player)
@@ -111,7 +112,7 @@ class GameService(
         gameRepo.save(game)
     }
 
-    fun createPlayer(username: String): Player {
+    fun createPlayer(username: String, emailMessage: String): Player {
         val passwordByte = ByteArray(16)
         secureRandom.nextBytes(passwordByte)
         val md = MessageDigest.getInstance("SHA-256")
@@ -124,7 +125,7 @@ class GameService(
 
         appUserRepo.deleteByUsernameIgnoreCase(username)
         appUserRepo.save(user)
-        emailService.sendQuizInvite(username, password)
+        emailService.sendQuizInvite(username, password, emailMessage)
 
         return Player(id = user.id!!, displayName = user.username!!)
     }
@@ -132,12 +133,13 @@ class GameService(
     fun publishQuestion(pointer: QuestionPointer) {
 
         // 1. Get the game
-        val game = gameRepo.findById(pointer.gameId)
-        if (!game.isPresent)
+        val gameOpt = gameRepo.findById(pointer.gameId)
+        if (!gameOpt.isPresent)
             throw NotFoundException("Game ${pointer.gameId} not found")
+        val game = gameOpt.get()
 
         // 2. Get question
-        val question = getQuestion(game.get().quizId, pointer.roundId, pointer.questionId)
+        val question = getQuestion(game.quizId, pointer.roundId, pointer.questionId)
 
         val presentQuestion = PresentQuestion(
                 gameId = pointer.gameId,
@@ -147,9 +149,13 @@ class GameService(
                 imageUri = question.imageUri,
                 mediaUri = question.mediaUri)
 
-        // 3. Publish content to all players
+        // 3. Set question as published
+        game.publishedQuestions = game.publishedQuestions.plus(question.id)
+        gameRepo.save(game)
+
+        // 4. Publish content to all players
         currentContentService.save(
-                publishService.publishContent(recipients = game.get().players.map { it.displayName },
+                publishService.publishContent(recipients = game.players.map { it.displayName },
                         topic = "/game",
                         content = presentQuestion,
                         gameId = pointer.gameId,

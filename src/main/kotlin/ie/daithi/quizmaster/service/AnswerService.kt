@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service
 
 @Service
 class AnswerService(
-    private val answerRepo: AnswerRepo,
-    private val gameService: GameService,
-    private val quizService: QuizService,
-    private val scoringService: ScoringService,
-    private val mongoOperations: MongoOperations,
-    private val publishService: PublishService,
-    private val currentContentService: CurrentContentService
+        private val answerRepo: AnswerRepo,
+        private val gameService: GameService,
+        private val quizService: QuizService,
+        private val scoringService: ScoringService,
+        private val mongoOperations: MongoOperations,
+        private val publishService: PublishService,
+        private val currentContentService: CurrentContentService
 ) {
 
     fun submitAnswer(playerId: String, gameId: String, roundId: String, questionId: String, answer: String) {
@@ -181,14 +181,19 @@ class AnswerService(
         }
     }
 
-    fun getAnswersForPlayer(gameId: String, playerId: String): List<QuestionAnswerWrapper> {
-        val answers = answerRepo.findByGameIdAndPlayerId(gameId = gameId, playerId = playerId)
-        if(answers.isEmpty())
-            return emptyList()
+    fun getQuestionsAndAnswersForPlayer(gameId: String, playerId: String): List<QuestionAnswerWrapper> {
+        val answers = getAnswersForPlayer(gameId = gameId, playerId = playerId)
         return answers.map {
             val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
             QuestionAnswerWrapper(question, it)
         }
+    }
+
+    fun getAnswersForPlayer(gameId: String, playerId: String): List<Answer> {
+        val answers = answerRepo.findByGameIdAndPlayerId(gameId = gameId, playerId = playerId)
+        if(answers.isEmpty())
+            return emptyList()
+        return answers
     }
 
     companion object {

@@ -2,7 +2,9 @@ package ie.daithi.quizmaster.web.controller
 
 import ie.daithi.quizmaster.enumeration.AnswerMethod
 import ie.daithi.quizmaster.model.Answer
+import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.service.AnswerService
+import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.*
 import io.swagger.annotations.*
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1")
 @Api(tags = ["Answer"], description = "Endpoints that relate to CRUD operations on answers")
 class AnswerController(
-        private val answerService: AnswerService
+        private val answerService: AnswerService,
+        private val gameService: GameService,
+        private val appUserRepo: AppUserRepo
 ) {
 
     @PostMapping("/answer")
@@ -33,6 +37,21 @@ class AnswerController(
                 roundId = answer.roundId,
                 questionId = answer.questionId,
                 answer = answer.answer)
+    }
+
+    @GetMapping("/answer/all")
+    @ResponseStatus(value = HttpStatus.OK)
+    @Throws(NotFoundException::class)
+    @ApiOperation(value = "Get all my answers", notes = "Get all my answers for this game")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful")
+    )
+    @ResponseBody
+    fun getAllAnswers(): List<Answer> {
+        val id = SecurityContextHolder.getContext().authentication.name
+        val appUser = appUserRepo.findByUsernameIgnoreCase(id) ?: throw NotFoundException("User not found")
+        val game = gameService.getByPlayerId(appUser.id!!)
+        return answerService.getAnswersForPlayer(gameId = game.id!!, playerId = id)
     }
 
     @PutMapping("/admin/answer")
@@ -70,7 +89,7 @@ class AnswerController(
         return if (roundId == null && playerId == null)
             answerService.getAnswers(gameId)
         else if (roundId == null && playerId != null)
-            answerService.getAnswersForPlayer(gameId, playerId)
+            answerService.getQuestionsAndAnswersForPlayer(gameId, playerId)
         else if (playerId == null && roundId != null)
             answerService.getAnswers(gameId, roundId)
         else

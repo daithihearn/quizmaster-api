@@ -1,11 +1,8 @@
 package ie.daithi.quizmaster.service
 
-import com.cloudinary.Cloudinary
-import com.cloudinary.utils.ObjectUtils
 import ie.daithi.quizmaster.model.Quiz
 import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.logging.log4j.LogManager
 import org.springframework.stereotype.Service
 

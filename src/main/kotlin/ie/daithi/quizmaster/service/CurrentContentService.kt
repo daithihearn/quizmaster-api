@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class CurrentContentService(
-    private val currentContentRepo: CurrentContentRepo
+        private val currentContentRepo: CurrentContentRepo
 ) {
 
     fun get(gameId: String): PublishContent? {
