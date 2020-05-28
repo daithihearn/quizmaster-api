@@ -48,9 +48,6 @@ val swaggerVersion: String = "2.9.2"
 
 dependencies {
 
-	// Internal Dependencies
-	implementation("ie.daithi.quizmaster:quizmaster-frontend:$version")
-
 	//External Dependencies
 
 	//Kotlin dependencies
@@ -58,7 +55,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:1.3.72")
 
 	//Spring dependencies
-	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
