@@ -1,6 +1,7 @@
 package ie.daithi.quizmaster.web.controller
 
 import ie.daithi.quizmaster.model.Game
+import ie.daithi.quizmaster.model.Player
 import ie.daithi.quizmaster.model.PublishContent
 import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.service.AnswerService
@@ -49,6 +50,21 @@ class GameController (
     @ResponseBody
     fun getAll(): List<Game> {
         return gameService.getAll()
+    }
+
+    @GetMapping("/game/players")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Get Players", notes = "Get the players for this game")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful"),
+            ApiResponse(code = 404, message = "Game not found")
+    )
+    @ResponseBody
+    fun getPlayers(): List<Player> {
+        val id = SecurityContextHolder.getContext().authentication.name
+        val appUser = appUserRepo.findByUsernameIgnoreCase(id) ?: throw NotFoundException("User not found")
+        val game = gameService.getByPlayerId(appUser.id!!)
+        return game.players
     }
 
     @GetMapping("/admin/game/active")

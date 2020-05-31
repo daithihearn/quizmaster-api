@@ -36,7 +36,7 @@ class AnswerService(
         // 2. Attempt to correct
         val game = gameService.get(gameId)
         val answerObj = Answer(playerId = playerId, quizId = game.quizId, gameId = gameId, roundId = roundId, questionId = questionId, answer = answer)
-        val question = gameService.getQuestion(game.quizId, roundId, questionId)
+        val question = quizService.getQuestion(game.quizId, roundId, questionId)
         if (!question.forceManualCorrection)
             scoringService.attemptScore(question.answer, answerObj, question.points)
 
@@ -50,12 +50,18 @@ class AnswerService(
                     QuestionAnswerWrapper(question, answerObj),
                     game.id!!,
                     PublishContentType.QUESTION_AND_ANSWER)
-        else
-            publishService.publishContent(game.quizMasterId,
-                    "/scoring",
-                    playerId,
-                    game.id!!,
-                    PublishContentType.AUTO_ANSWERED)
+
+        // 5. Publish answer event
+        publishService.publishContent(game.players.map { player -> player.displayName },
+                "/game",
+                playerId,
+                game.id!!,
+                PublishContentType.ANSWERED)
+        publishService.publishContent(game.quizMasterId,
+                "/scoring",
+                playerId,
+                game.id!!,
+                PublishContentType.ANSWERED)
     }
 
     fun getUnscoredAnswers(gameId: String): List<QuestionAnswerWrapper> {
@@ -63,7 +69,7 @@ class AnswerService(
         if(answers.isEmpty())
             return emptyList()
         return answers.map {
-            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            val question = quizService.getQuestion(it.quizId, it.roundId, it.questionId)
             QuestionAnswerWrapper(question, it)
         }
     }
@@ -156,7 +162,7 @@ class AnswerService(
         if(answers.isEmpty())
             return emptyList()
         return answers.map {
-            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            val question = quizService.getQuestion(it.quizId, it.roundId, it.questionId)
             QuestionAnswerWrapper(question, it)
         }
     }
@@ -166,7 +172,7 @@ class AnswerService(
         if(answers.isEmpty())
             return emptyList()
         return answers.map {
-            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            val question = quizService.getQuestion(it.quizId, it.roundId, it.questionId)
             QuestionAnswerWrapper(question, it)
         }
     }
@@ -176,7 +182,7 @@ class AnswerService(
         if(answers.isEmpty())
             return emptyList()
         return answers.map {
-            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            val question = quizService.getQuestion(it.quizId, it.roundId, it.questionId)
             QuestionAnswerWrapper(question, it)
         }
     }
@@ -184,7 +190,7 @@ class AnswerService(
     fun getQuestionsAndAnswersForPlayer(gameId: String, playerId: String): List<QuestionAnswerWrapper> {
         val answers = getAnswersForPlayer(gameId = gameId, playerId = playerId)
         return answers.map {
-            val question = gameService.getQuestion(it.quizId, it.roundId, it.questionId)
+            val question = quizService.getQuestion(it.quizId, it.roundId, it.questionId)
             QuestionAnswerWrapper(question, it)
         }
     }

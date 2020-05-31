@@ -1,5 +1,6 @@
 package ie.daithi.quizmaster.service
 
+import ie.daithi.quizmaster.model.Question
 import ie.daithi.quizmaster.model.Quiz
 import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
@@ -16,6 +17,14 @@ class QuizService(
         if (!quizOpt.isPresent)
             throw NotFoundException("Quiz with ID($id) not found")
         return quizOpt.get()
+    }
+
+    fun getQuestion(quizId: String, roundId: String, questionId: String): Question {
+        val quiz = get(quizId)
+
+        val round = quiz.rounds.find { round -> round.id == roundId } ?: throw NotFoundException("Round $roundId not found in quiz $quizId")
+
+        return round.questions.find { question -> question.id == questionId}?: throw NotFoundException("Question $questionId not found in quiz $quizId for round $roundId")
     }
 
     fun getAll(): List<Quiz> {

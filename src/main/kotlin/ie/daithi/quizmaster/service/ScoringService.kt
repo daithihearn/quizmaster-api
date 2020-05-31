@@ -40,12 +40,12 @@ class ScoringService(
         return score <= loosingScore
     }
 
-    fun attemptScore(answer: String, answerObj: Answer, points: Float?) {
+    fun attemptScore(answer: String, answerObj: Answer, points: Int?) {
         if (isCorrectAnswer(answer, answerObj.answer)) {
-            answerObj.score = points ?: 1f
+            answerObj.score = points ?: 1
             answerObj.method = AnswerMethod.AUTOMATIC
-        } else if (lowerThreshold > 0f && isInCorrectAnswer(answer, answerObj.answer)) {
-            answerObj.score = 0f
+        } else if (lowerThreshold > 0 && isInCorrectAnswer(answer, answerObj.answer)) {
+            answerObj.score = 0
             answerObj.method = AnswerMethod.AUTOMATIC
         }
     }

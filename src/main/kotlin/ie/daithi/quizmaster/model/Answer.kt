@@ -12,6 +12,6 @@ data class Answer(
         val roundId: String,
         val questionId: String,
         val answer: String,
-        var score: Float? = null,
+        var score: Int? = null,
         var method: AnswerMethod? = null
 )

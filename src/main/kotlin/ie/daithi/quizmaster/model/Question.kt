@@ -7,6 +7,6 @@ data class Question(
         val mediaUri: String? = null,
         val answer: String,
         val options: List<String>? = null,
-        val points: Float,
+        val points: Int,
         val forceManualCorrection: Boolean
 )

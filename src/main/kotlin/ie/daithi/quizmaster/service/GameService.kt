@@ -34,7 +34,7 @@ class GameService(
         private val emailService: EmailService,
         private val appUserRepo: AppUserRepo,
         private val passwordEncoder: BCryptPasswordEncoder,
-        private val mongoOperations: MongoOperations,
+        private val quizService: QuizService,
         private val publishService: PublishService,
         private val currentContentService: CurrentContentService
 ) {
@@ -139,7 +139,7 @@ class GameService(
         val game = gameOpt.get()
 
         // 2. Get question
-        val question = getQuestion(game.quizId, pointer.roundId, pointer.questionId)
+        val question = quizService.getQuestion(game.quizId, pointer.roundId, pointer.questionId)
 
         val presentQuestion = PresentQuestion(
                 gameId = pointer.gameId,
@@ -161,36 +161,6 @@ class GameService(
                         gameId = pointer.gameId,
                         contentType = PublishContentType.QUESTION)
         )
-    }
-
-    /**
-     *   db.quizzes.aggregate([
-            { $match: {_id: ObjectId('5e91bedf70416b47e5db30db')}},
-            { $unwind: "$rounds"},
-            { $match: {"rounds._id": 0}},
-            { $unwind: "$rounds.questions"},
-            { $match: {"rounds.questions._id": 0}},
-            { $group: { _id: { question: "$rounds.questions"  } }},
-        ])
-     */
-    fun getQuestion(quizId: String, roundId: String, questionId: String): Question {
-        val match1 = Aggregation.match(Criteria.where("id").`is`(quizId))
-        val unwind1 = Aggregation.unwind("\$rounds")
-        val match2 = Aggregation.match(Criteria.where("rounds._id").`is`(roundId))
-        val unwind2 = Aggregation.unwind("\$rounds.questions")
-        val match3 = Aggregation.match(Criteria.where("rounds.questions._id").`is`(questionId))
-        val group = Aggregation.group("\$rounds.questions")
-        val project = Aggregation.project()
-                .and("\$_id.id").`as`("id")
-                .and("\$_id.question").`as`("question")
-                .and("\$_id.imageUri").`as`("imageUri")
-                .and("\$_id.type").`as`("type")
-                .and("\$_id.answer").`as`("answer")
-                .and("\$_id.options").`as`("options")
-
-        val aggregation = Aggregation.newAggregation(match1, unwind1, match2, unwind2, match3, group, project)
-        return mongoOperations.aggregate(aggregation, Quiz::class.java, Question::class.java).uniqueMappedResult
-                ?: throw NotFoundException("Can't find question $quizId -> $roundId -> $questionId")
     }
 
     fun get(gameId: String): Game {
