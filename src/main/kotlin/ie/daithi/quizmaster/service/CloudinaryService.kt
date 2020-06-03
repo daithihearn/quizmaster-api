@@ -25,4 +25,32 @@ class CloudinaryService(
         return cloudinary.uploader().upload(imageUri, params)["secure_url"] as String
     }
 
+    override fun uploadAudio(audioUri: String): String {
+        val publicId = "quizzes/audio/${DigestUtils.md5Hex(audioUri)}"
+
+        // Can we check if it already exists here?
+
+        val params = ObjectUtils.asMap(
+                "public_id", publicId,
+                "overwrite", true,
+                "resource_type", "auto"
+        )
+
+        return cloudinary.uploader().upload(audioUri, params)["secure_url"] as String
+    }
+
+    override fun uploadVideo(videoUri: String): String {
+        val publicId = "quizzes/videos/${DigestUtils.md5Hex(videoUri)}"
+
+        // Can we check if it already exists here?
+
+        val params = ObjectUtils.asMap(
+                "public_id", publicId,
+                "overwrite", true,
+                "resource_type", "video"
+        )
+
+        return cloudinary.uploader().upload(videoUri, params)["secure_url"] as String
+    }
+
 }

@@ -9,4 +9,12 @@ class StubCloudService: CloudService {
     override fun uploadImage(imageUri: String): String {
         return imageUri
     }
+
+    override fun uploadAudio(audioUri: String): String {
+        return "/demo/demo.wav"
+    }
+
+    override fun uploadVideo(videoUri: String): String {
+        return "/demo/demo.mov"
+    }
 }

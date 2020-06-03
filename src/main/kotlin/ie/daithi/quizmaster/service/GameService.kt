@@ -147,7 +147,8 @@ class GameService(
                 questionId = pointer.questionId,
                 question = question.question,
                 imageUri = question.imageUri,
-                mediaUri = question.mediaUri)
+                audioUri = question.audioUri,
+                videoUri = question.videoUri)
 
         // 3. Set question as published
         game.publishedQuestions = game.publishedQuestions.plus(question.id)
