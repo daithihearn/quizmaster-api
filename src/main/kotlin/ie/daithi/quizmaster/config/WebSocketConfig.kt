@@ -1,6 +1,5 @@
 package ie.daithi.quizmaster.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import ie.daithi.quizmaster.web.security.websocket.HttpHandshakeInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
@@ -15,8 +14,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 class WebSocketConfig (
         @Value("#{'\${cors.whitelist}'.split(',')}")
         private val allowedOrigins: List<String>,
-        @Value("\${security.jwt.secret}")
-        private val securitySecret: String,
         private val jwtDecoder: JwtDecoder
 ): WebSocketMessageBrokerConfigurer {
 
