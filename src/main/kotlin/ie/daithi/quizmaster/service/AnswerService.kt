@@ -52,7 +52,7 @@ class AnswerService(
                     PublishContentType.QUESTION_AND_ANSWER)
 
         // 5. Publish answer event
-        publishService.publishContent(game.players.map { player -> player.displayName },
+        publishService.publishContent(game.players,
                 "/game",
                 playerId,
                 game.id!!,
@@ -126,7 +126,7 @@ class AnswerService(
 
         // 3. Publish the leaderboard
         currentContentService.save(
-                publishService.publishContent(recipients = game.players.map { it.displayName },
+                publishService.publishContent(recipients = game.players,
                 topic = "/game",
                 content = leaderboard,
                 gameId = gameId,
@@ -145,7 +145,7 @@ class AnswerService(
 
         // 3. Publish round
         currentContentService.save(
-                publishService.publishContent(recipients = game.players.map { it.displayName },
+                publishService.publishContent(recipients = game.players,
                 topic = "/game",
                 content = round,
                 gameId = gameId,

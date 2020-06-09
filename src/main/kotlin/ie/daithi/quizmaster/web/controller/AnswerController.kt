@@ -5,6 +5,7 @@ import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.service.GameService
+import ie.daithi.quizmaster.web.exceptions.ForbiddenException
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
 import ie.daithi.quizmaster.web.model.*
 import io.swagger.annotations.*
@@ -30,7 +31,7 @@ class AnswerController(
     )
     @ResponseBody
     fun submitAnswer(@RequestBody answer: SubmitAnswer) {
-        val id = SecurityContextHolder.getContext().authentication.name
+        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
         answerService.submitAnswer(
                 playerId = id,
                 gameId = answer.gameId,
@@ -47,10 +48,15 @@ class AnswerController(
             ApiResponse(code = 200, message = "Request successful")
     )
     @ResponseBody
-    fun getAllAnswers(): List<Answer> {
-        val id = SecurityContextHolder.getContext().authentication.name
-        val appUser = appUserRepo.findByUsernameIgnoreCase(id) ?: throw NotFoundException("User not found")
-        val game = gameService.getByPlayerId(appUser.id!!)
+    fun getAllAnswers(@RequestParam gameId: String): List<Answer> {
+        // 1. Get current user ID
+        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+
+        // 2. Get Game
+        val game = gameService.get(gameId)
+
+        // 3. Check the player is in this game
+        if (!game.players.contains(id)) throw ForbiddenException("Can only get answers if you are part of the game.")
         return answerService.getAnswersForPlayer(gameId = game.id!!, playerId = id)
     }
 

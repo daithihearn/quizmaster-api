@@ -1,9 +1,8 @@
 package ie.daithi.quizmaster.web.security.websocket
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import ie.daithi.quizmaster.web.security.SecurityConstants
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.server.ServerHttpRequest
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler
 import org.springframework.web.util.UriComponentsBuilder
@@ -11,7 +10,7 @@ import org.springframework.web.util.UriUtils
 import java.security.Principal
 
 class HttpHandshakeInterceptor(
-        private val secret: String?
+        private val jwtDecoder: JwtDecoder
 ): DefaultHandshakeHandler() {
 
     override fun determineUser(request: ServerHttpRequest, wsHandler: WebSocketHandler, attributes: MutableMap<String, Any>): Principal? {
@@ -21,12 +20,8 @@ class HttpHandshakeInterceptor(
             var tokenId = params[TOKEN_ID]!![0]
             if (null != tokenId && !"null".equals(tokenId, ignoreCase = true)) {
                 tokenId = UriUtils.decode(tokenId, "UTF-8")
-                // parse the token.
-                val user = JWT.require(Algorithm.HMAC512(secret!!.toByteArray()))
-                        .build()
-                        .verify(tokenId.replace(SecurityConstants.TOKEN_PREFIX, ""))
-                        .subject
-                if (user != null) return StompPrincipal(user)
+                val jwt = jwtDecoder.decode(tokenId)
+                return StompPrincipal(jwt.subject)
             }
         }
         return null

@@ -59,6 +59,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
+	implementation("org.springframework.security:spring-security-oauth2-resource-server:5.3.3.RELEASE")
+	implementation("org.springframework.security:spring-security-oauth2-jose:5.3.3.RELEASE")
+//	implementation("com.auth0:auth0-spring-security-api:1.3.1")
 	testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
 
 	//Springfox
