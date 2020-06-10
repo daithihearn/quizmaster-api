@@ -125,8 +125,8 @@ class GameService(
         return gameRepo.findAll()
     }
 
-    fun getActive(): List<Game> {
-        return gameRepo.findAllByStatus(GameStatus.ACTIVE)
+    fun getActiveGamesForQuizmaster(quizMasterId: String): List<Game> {
+        return gameRepo.findAllByQuizMasterIdAndStatus(quizMasterId, GameStatus.ACTIVE)
     }
 
     fun finish(gameId: String) {
@@ -144,8 +144,8 @@ class GameService(
         gameRepo.save(game)
     }
 
-    fun getMyActive(id: String): List<Game> {
-        return gameRepo.findByPlayerIdAndStatus(id, GameStatus.ACTIVE)
+    fun getMyActive(playerId: String): List<Game> {
+        return gameRepo.findByPlayerIdAndStatus(playerId, GameStatus.ACTIVE)
     }
 
     companion object {

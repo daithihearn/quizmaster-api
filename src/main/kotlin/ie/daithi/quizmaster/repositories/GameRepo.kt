@@ -8,6 +8,6 @@ import org.springframework.data.mongodb.repository.Query
 interface GameRepo: MongoRepository<Game, String> {
     @Query(value = "{ 'players' : ?0, 'status': ?1 }")
     fun findByPlayerIdAndStatus(playerId: String, status: GameStatus): List<Game>
-    fun findAllByStatus(status: GameStatus): List<Game>
+    fun findAllByQuizMasterIdAndStatus(quizMasterId: String,status: GameStatus): List<Game>
 
 }

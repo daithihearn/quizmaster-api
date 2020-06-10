@@ -108,8 +108,12 @@ class GameController (
             ApiResponse(code = 200, message = "Request successful")
     )
     @ResponseBody
-    fun getActive(): List<Game> {
-        return gameService.getActive()
+    fun getActiveGamesForAdmin(): List<Game> {
+        // 1. Get current user ID
+        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+
+        // 2. Get active games for admin
+        return gameService.getActiveGamesForQuizmaster(id)
     }
 
     @PutMapping("/admin/game")

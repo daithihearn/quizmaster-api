@@ -40,7 +40,7 @@ class WebSecurity(
                 .antMatchers(HttpMethod.GET, "/api/v1/admin/**").hasAuthority("SCOPE_read:admin")
                 .antMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasAuthority("SCOPE_write:admin")
                 .antMatchers(HttpMethod.DELETE, "/api/v1/admin/**").hasAuthority("SCOPE_delete:admin")
-                .antMatchers(HttpMethod.GET, "/api/v1/game/**").hasAuthority("SCOPE_read:game")
+                .antMatchers(HttpMethod.GET, "/api/v1/game/**").hasAnyAuthority("SCOPE_read:admin", "SCOPE_read:game")
                 .and()
                 .oauth2ResourceServer().jwt()
     }
