@@ -67,13 +67,14 @@ class GameController (
     @ResponseBody
     fun getPlayersForGame(@RequestParam gameId: String): List<AppUser> {
         // 1. Get current user ID
-        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val subject = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val user = appUserService.getUserBySubject(subject)
 
         // 2. Get Game
         val game = gameService.get(gameId)
 
         // 3. Check the player is in this game
-        if (!game.players.contains(id) && game.quizMasterId != id) throw ForbiddenException("Can only get players if you are part of the game or are the quizmaster.")
+        if (!game.players.contains(user.id) && game.quizMasterId != user.id) throw ForbiddenException("Can only get players if you are part of the game or are the quizmaster.")
 
         // 4. Get players
         return appUserService.getUsers(game.players)
@@ -88,10 +89,11 @@ class GameController (
     @ResponseBody
     fun getMyActive(): List<Game> {
         // 1. Get current user ID
-        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val subject = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val user = appUserService.getUserBySubject(subject)
 
         // 2. Get active games for player
-        return gameService.getMyActive(id)
+        return gameService.getMyActive(user.id!!)
     }
 
     @GetMapping("/admin/game/active")
@@ -103,10 +105,11 @@ class GameController (
     @ResponseBody
     fun getActiveGamesForAdmin(): List<Game> {
         // 1. Get current user ID
-        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val subject = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val user = appUserService.getUserBySubject(subject)
 
         // 2. Get active games for admin
-        return gameService.getActiveGamesForQuizmaster(id)
+        return gameService.getActiveGamesForQuizmaster(user.id!!)
     }
 
     @PutMapping("/admin/game")
@@ -117,8 +120,10 @@ class GameController (
     )
     @ResponseBody
     fun put(@RequestBody createGame: CreateGame): Game {
-        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
-        return gameService.create(id, createGame.name, createGame.players, createGame.quizId)
+        val subject = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val user = appUserService.getUserBySubject(subject)
+
+        return gameService.create(user.id!!, createGame.name, createGame.players, createGame.quizId)
     }
 
     @PutMapping("/admin/game/addPlayer")

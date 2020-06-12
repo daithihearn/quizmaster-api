@@ -55,7 +55,7 @@ class GameService(
         if (!userOpt.isPresent) throw NotFoundException("User $playerId not found")
         val user = userOpt.get()
 
-        game.players = game.players.minus(user.id)
+        game.players = game.players.minus(user.id!!)
 
         // 3. Save Game
         gameRepo.save(game)

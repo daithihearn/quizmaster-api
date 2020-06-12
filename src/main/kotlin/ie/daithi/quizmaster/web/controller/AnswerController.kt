@@ -4,6 +4,7 @@ import ie.daithi.quizmaster.enumeration.AnswerMethod
 import ie.daithi.quizmaster.model.Answer
 import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.service.AnswerService
+import ie.daithi.quizmaster.service.AppUserService
 import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.exceptions.ForbiddenException
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
@@ -18,7 +19,8 @@ import org.springframework.web.bind.annotation.*
 @Api(tags = ["Answer"], description = "Endpoints that relate to CRUD operations on answers")
 class AnswerController(
         private val answerService: AnswerService,
-        private val gameService: GameService
+        private val gameService: GameService,
+        private val appUserService: AppUserService
 ) {
 
     @PostMapping("/answer")
@@ -31,15 +33,16 @@ class AnswerController(
     @ResponseBody
     fun submitAnswer(@RequestBody answer: SubmitAnswer) {
         // 1. Get current user ID
-        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val subject = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val user = appUserService.getUserBySubject(subject)
 
         // 2. Get Game
         val game = gameService.get(answer.gameId)
 
         // 3. Check the player is in this game
-        if (!game.players.contains(id)) throw ForbiddenException("Can only get answers if you are part of the game.")
+        if (!game.players.contains(user.id!!)) throw ForbiddenException("Can only get answers if you are part of the game.")
         answerService.submitAnswer(
-                playerId = id,
+                playerId = user.id!!,
                 game = game,
                 roundId = answer.roundId,
                 questionId = answer.questionId,
@@ -56,14 +59,15 @@ class AnswerController(
     @ResponseBody
     fun getAllAnswers(@RequestParam gameId: String): List<Answer> {
         // 1. Get current user ID
-        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val subject = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+        val user = appUserService.getUserBySubject(subject)
 
         // 2. Get Game
         val game = gameService.get(gameId)
 
         // 3. Check the player is in this game
-        if (!game.players.contains(id)) throw ForbiddenException("Can only get answers if you are part of the game.")
-        return answerService.getAnswersForPlayer(gameId = game.id!!, playerId = id)
+        if (!game.players.contains(user.id!!)) throw ForbiddenException("Can only get answers if you are part of the game.")
+        return answerService.getAnswersForPlayer(gameId = game.id!!, playerId = user.id!!)
     }
 
     @PutMapping("/admin/answer")
