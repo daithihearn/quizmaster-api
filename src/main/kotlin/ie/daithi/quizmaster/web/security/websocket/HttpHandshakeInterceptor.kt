@@ -1,6 +1,5 @@
 package ie.daithi.quizmaster.web.security.websocket
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.web.socket.WebSocketHandler
@@ -21,7 +20,12 @@ class HttpHandshakeInterceptor(
             if (null != tokenId && !"null".equals(tokenId, ignoreCase = true)) {
                 tokenId = UriUtils.decode(tokenId, "UTF-8")
                 val jwt = jwtDecoder.decode(tokenId)
-                return StompPrincipal(jwt.subject)
+
+                val subject = if (params[GAME_ID] != null && params[GAME_ID]!!.isNotEmpty())
+                    jwt.subject + params[GAME_ID]!![0]
+                else jwt.subject
+
+                return StompPrincipal(subject)
             }
         }
         return null
@@ -29,5 +33,6 @@ class HttpHandshakeInterceptor(
 
     companion object {
         private const val TOKEN_ID = "tokenId"
+        private const val GAME_ID = "gameId"
     }
 }

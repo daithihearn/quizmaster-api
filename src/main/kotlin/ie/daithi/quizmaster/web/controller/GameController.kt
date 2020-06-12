@@ -1,16 +1,11 @@
 package ie.daithi.quizmaster.web.controller
 
 import ie.daithi.quizmaster.model.Game
-import ie.daithi.quizmaster.model.PublishContent
-import ie.daithi.quizmaster.service.AnswerService
 import ie.daithi.quizmaster.service.AppUserService
-import ie.daithi.quizmaster.service.CurrentContentService
 import ie.daithi.quizmaster.service.GameService
 import ie.daithi.quizmaster.web.exceptions.ForbiddenException
 import ie.daithi.quizmaster.web.model.CreateGame
-import ie.daithi.quizmaster.web.model.PresentQuestion
 import ie.daithi.quizmaster.web.model.QuestionPointer
-import ie.daithi.quizmaster.web.model.enums.PublishContentType
 import ie.daithi.quizmaster.model.AppUser
 import io.swagger.annotations.*
 import org.apache.logging.log4j.LogManager
@@ -23,13 +18,11 @@ import org.springframework.web.bind.annotation.*
 @Api(tags = ["Game"], description = "Endpoints that relate to CRUD operations on Games")
 class GameController (
         private val gameService: GameService,
-        private val currentContentService: CurrentContentService,
-        private val appUserService: AppUserService,
-        private val answerService: AnswerService
+        private val appUserService: AppUserService
 ){
 
 
-    @GetMapping("/admin/game")
+    @GetMapping("/game")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Get Game", notes = "Get the game")
     @ApiResponses(
@@ -192,34 +185,18 @@ class GameController (
         gameService.publishQuestion(pointer)
     }
 
-    @GetMapping("/game/currentContent")
+    @PutMapping("/admin/game/publishLeaderboard")
     @ResponseStatus(value = HttpStatus.OK)
-    @ApiOperation(value = "Get current content", notes = "Get current content")
-    @ApiResponses(
-            ApiResponse(code = 200, message = "Request successful")
-    )
-    @ResponseBody
-    fun getCurrentContent(@RequestParam gameId: String): PublishContent? {
+    @ApiOperation(value = "Publish leaderboard", notes = "Publish leaderboard")
+    fun publishLeaderboard(@RequestParam gameId: String, @RequestParam roundId: String?) {
+        gameService.publishLeaderboard(gameId, roundId)
+    }
 
-        // 1. Get current user ID
-        val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
-
-        // 2. Get Game
-        val game = gameService.get(gameId)
-
-        // 3. Check the player is in this game
-        if (!game.players.contains(id)) throw ForbiddenException("Can only get current content if you are part of the game.")
-
-        val content = currentContentService.get(game.id!!)?: return null
-
-        // If the content type is a question check if they have already answered it
-        if (content.type == PublishContentType.QUESTION
-                && content.content is PresentQuestion
-                && content.content != null
-                && answerService.hasAnswered(game.id!!, id, (content.content as PresentQuestion).roundId, (content.content as PresentQuestion).questionId))
-            return null
-
-        return content
+    @PutMapping("/admin/game/publishAnswersForRound")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Publish answers for round", notes = "Publish answers for round")
+    fun publishAnswersForRound(@RequestParam gameId: String, @RequestParam roundId: String) {
+        gameService.publishAnswersForRound(gameId, roundId)
     }
 
     companion object {

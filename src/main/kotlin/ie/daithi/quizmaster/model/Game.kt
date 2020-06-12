@@ -13,6 +13,6 @@ data class Game (
     val quizId: String,
     val quizMasterId: String,
     var players: List<String>,
-    val emailMessage: String = "",
-    var publishedQuestions: List<String> = emptyList()
+    var publishedQuestions: List<String> = emptyList(),
+    var currentContent: PublishContent? = null
 )

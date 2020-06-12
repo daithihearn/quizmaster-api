@@ -18,7 +18,7 @@ class WebSocketConfig (
 ): WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
-        config.enableSimpleBroker("/game", "/scoring")
+        config.enableSimpleBroker("/game", "/unscored", "/answered")
         config.setApplicationDestinationPrefixes("/app")
     }
 

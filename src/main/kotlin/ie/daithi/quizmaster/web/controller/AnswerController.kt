@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.*
 @Api(tags = ["Answer"], description = "Endpoints that relate to CRUD operations on answers")
 class AnswerController(
         private val answerService: AnswerService,
-        private val gameService: GameService,
-        private val appUserRepo: AppUserRepo
+        private val gameService: GameService
 ) {
 
     @PostMapping("/answer")
@@ -31,10 +30,17 @@ class AnswerController(
     )
     @ResponseBody
     fun submitAnswer(@RequestBody answer: SubmitAnswer) {
+        // 1. Get current user ID
         val id = SecurityContextHolder.getContext().authentication.name ?: throw ForbiddenException("Couldn't authenticate user")
+
+        // 2. Get Game
+        val game = gameService.get(answer.gameId)
+
+        // 3. Check the player is in this game
+        if (!game.players.contains(id)) throw ForbiddenException("Can only get answers if you are part of the game.")
         answerService.submitAnswer(
                 playerId = id,
-                gameId = answer.gameId,
+                game = game,
                 roundId = answer.roundId,
                 questionId = answer.questionId,
                 answer = answer.answer)
@@ -102,6 +108,16 @@ class AnswerController(
             answerService.getAnswers(gameId, roundId!!, playerId!!)
     }
 
+    @GetMapping("/answer/answered")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Get who has answered a question", notes = "Get who has answered a question")
+    fun getWhoHasAnswered(@ApiParam(required = true) @RequestParam gameId: String,
+                   @ApiParam(required = true) @RequestParam roundId: String,
+                   @ApiParam(required = true) @RequestParam questionId: String): List<String> {
+
+        return answerService.getHasAnswered(gameId, roundId, questionId)
+    }
+
     @GetMapping("/answer/leaderboard")
     @ResponseStatus(value = HttpStatus.OK)
     @ApiOperation(value = "Get leaderboard", notes = "Get leaderboard")
@@ -109,19 +125,5 @@ class AnswerController(
 
         if (roundId != null) return answerService.getLeaderboard(gameId, roundId)
         return answerService.getLeaderboard(gameId)
-    }
-
-    @PutMapping("/admin/answer/publishLeaderboard")
-    @ResponseStatus(value = HttpStatus.OK)
-    @ApiOperation(value = "Publish leaderboard", notes = "Publish leaderboard")
-    fun publishLeaderboard(@RequestParam gameId: String, @RequestParam roundId: String?) {
-        answerService.publishLeaderboard(gameId, roundId)
-    }
-
-    @PutMapping("/admin/answer/publishAnswersForRound")
-    @ResponseStatus(value = HttpStatus.OK)
-    @ApiOperation(value = "Publish answers for round", notes = "Publish answers for round")
-    fun publishAnswersForRound(@RequestParam gameId: String, @RequestParam roundId: String) {
-        answerService.publishAnswersForRound(gameId, roundId)
     }
 }

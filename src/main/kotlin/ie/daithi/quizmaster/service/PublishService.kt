@@ -1,8 +1,7 @@
 package ie.daithi.quizmaster.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import ie.daithi.quizmaster.model.PublishContent
-import ie.daithi.quizmaster.web.model.enums.PublishContentType
+import ie.daithi.quizmaster.model.Game
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.TextMessage
@@ -12,21 +11,26 @@ class PublishService(
         private val messageSender: SimpMessagingTemplate,
         private val objectMapper: ObjectMapper
 ) {
-    fun publishContent(recipients: List<String>, topic: String, content: Any, gameId: String, contentType: PublishContentType): PublishContent {
-        val contentWrapped = PublishContent(gameId = gameId, type = contentType, content = content)
-        publishContent(recipients, topic, contentWrapped)
-        return contentWrapped
-    }
 
-    fun publishContent(recipients: List<String>, topic: String, content: PublishContent): PublishContent {
-        val wsMessage = TextMessage(objectMapper.writeValueAsString(content))
-        recipients.forEach {
-            messageSender.convertAndSendToUser(it, topic, wsMessage)
+    fun publishGame(game: Game, recipients: List<String>) {
+        val wsMessage = TextMessage(objectMapper.writeValueAsString(game))
+        recipients.forEach { recipient ->
+            messageSender.convertAndSendToUser(recipient+game.id, "/game", wsMessage)
         }
-        return content
     }
 
-    fun publishContent(recipient: String, topic: String, content: Any, gameId: String, contentType: PublishContentType): PublishContent {
-        return publishContent(listOf(recipient), topic, content, gameId, contentType)
+    fun publishAnsweredTopic(content: Any, gameId: String, recipients: List<String>) {
+        val wsMessage = TextMessage(objectMapper.writeValueAsString(content))
+        recipients.forEach { recipient ->
+            messageSender.convertAndSendToUser(recipient + gameId, "/answered", wsMessage)
+        }
     }
+
+    fun publishToUnscoredTopic(content: Any, gameId: String, recipients: List<String>) {
+        val wsMessage = TextMessage(objectMapper.writeValueAsString(content))
+        recipients.forEach { recipient ->
+            messageSender.convertAndSendToUser(recipient + gameId, "/unscored", wsMessage)
+        }
+    }
+
 }

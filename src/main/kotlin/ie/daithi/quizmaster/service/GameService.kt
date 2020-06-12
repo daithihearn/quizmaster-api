@@ -2,9 +2,9 @@ package ie.daithi.quizmaster.service
 
 import ie.daithi.quizmaster.enumeration.GameStatus
 import ie.daithi.quizmaster.model.Game
+import ie.daithi.quizmaster.model.PublishContent
 import ie.daithi.quizmaster.repositories.AppUserRepo
 import ie.daithi.quizmaster.repositories.GameRepo
-import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.validation.EmailValidator
 import ie.daithi.quizmaster.web.exceptions.InvalidStatusException
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
@@ -18,18 +18,17 @@ import java.security.SecureRandom
 
 @Service
 class GameService(
-        private val quizRepo: QuizRepo,
         private val gameRepo: GameRepo,
         private val appUserRepo: AppUserRepo,
         private val quizService: QuizService,
-        private val publishService: PublishService,
-        private val currentContentService: CurrentContentService
+        private val answerService: AnswerService,
+        private val publishService: PublishService
 ) {
     fun create(quizMasterId: String, name: String, players: List<String>, quizId: String): Game {
         logger.info("Attempting to start a game for quizId: $quizId")
 
         // 1. Check that quiz exists
-        if (!quizRepo.existsById(quizId))
+        if (!quizService.exists(quizId))
             throw NotFoundException("Quiz $quizId not found")
 
         // 2. Create Game
@@ -98,16 +97,53 @@ class GameService(
 
         // 3. Set question as published
         game.publishedQuestions = game.publishedQuestions.plus(question.id)
+
+        // 4. Set Current content
+        val content = PublishContent(type = PublishContentType.QUESTION, content = presentQuestion)
+        game.currentContent = content
+
         gameRepo.save(game)
 
-        // 4. Publish content to all players
-        currentContentService.save(
-                publishService.publishContent(recipients = game.players,
-                        topic = "/game",
-                        content = presentQuestion,
-                        gameId = pointer.gameId,
-                        contentType = PublishContentType.QUESTION)
-        )
+        // 5. Publish content to all players
+        publishService.publishGame(game = game, recipients = game.players)
+    }
+
+    fun publishLeaderboard(gameId: String, roundId: String?) {
+        // 1. Get the leaderboard
+        val leaderboard = if (roundId == null) answerService.getLeaderboard(gameId)
+        else answerService.getLeaderboard(gameId, roundId)
+
+        // 2. Get the game
+        val game = get(gameId)
+
+        // 3. Set Current content
+        val content = PublishContent(type = PublishContentType.LEADERBOARD, content = leaderboard)
+        game.currentContent = content
+
+        gameRepo.save(game)
+
+        // 4. Publish the leaderboard
+        publishService.publishGame(game = game, recipients = game.players)
+
+    }
+
+    fun publishAnswersForRound(gameId: String, roundId: String) {
+        // 1. Get game
+        val game = get(gameId)
+
+        // 2. Get quiz
+        val quiz = quizService.get(game.quizId)
+        val round = quiz.rounds.first { it.id == roundId }
+
+        // 3. Set Current content
+        val content = PublishContent(type = PublishContentType.ROUND_SUMMARY, content = round)
+        game.currentContent = content
+
+        gameRepo.save(game)
+
+        // 4. Publish the leaderboard
+        publishService.publishGame(game = game, recipients = game.players)
+
     }
 
     fun get(gameId: String): Game {

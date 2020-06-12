@@ -42,6 +42,10 @@ class QuizService(
         quizRepo.deleteById(id)
     }
 
+    fun exists(quizId: String): Boolean {
+        return quizRepo.existsById(quizId)
+    }
+
     companion object {
         private val logger = LogManager.getLogger(this::class.java)
     }

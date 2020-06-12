@@ -36,11 +36,10 @@ class WebSecurity(
                 .antMatchers(HttpMethod.GET, "/manifest.json").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/profile/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/v1/profile/**").permitAll()
-//                .antMatchers("/api/v1/**").fullyAuthenticated()
                 .antMatchers(HttpMethod.GET, "/api/v1/admin/**").hasAuthority("SCOPE_read:admin")
                 .antMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasAuthority("SCOPE_write:admin")
                 .antMatchers(HttpMethod.DELETE, "/api/v1/admin/**").hasAuthority("SCOPE_delete:admin")
-                .antMatchers(HttpMethod.GET, "/api/v1/game/**").hasAnyAuthority("SCOPE_read:admin", "SCOPE_read:game")
+                .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt()
     }
