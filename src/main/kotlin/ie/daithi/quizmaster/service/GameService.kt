@@ -117,7 +117,10 @@ class GameService(
         val game = get(gameId)
 
         // 3. Set Current content
-        val content = PublishContent(type = PublishContentType.LEADERBOARD, content = leaderboard)
+        val type = if (roundId == null)
+            PublishContentType.LEADERBOARD_FULL
+        else PublishContentType.LEADERBOARD_ROUND
+        val content = PublishContent(type = type, content = leaderboard)
         game.currentContent = content
 
         gameRepo.save(game)
