@@ -6,5 +6,6 @@ data class PresentQuestion(
         val questionId: String,
         val question: String,
         val imageUri: String?,
-        val mediaUri: String?
+        val audioUri: String?,
+        val videoUri: String?
 )

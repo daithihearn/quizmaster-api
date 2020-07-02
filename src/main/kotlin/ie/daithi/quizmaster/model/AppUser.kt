@@ -1,4 +1,4 @@
-package ie.daithi.quizmaster.web.security.model
+package ie.daithi.quizmaster.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
@@ -9,7 +9,9 @@ data class AppUser (
     @Id
     var id: String? = null,
     @Indexed(unique = true)
-    var username: String? = null,
-    var password: String? = null,
-    var authorities: List<Authority>?
+    val subject: String,
+    @Indexed(unique = true)
+    val email: String,
+    val name: String,
+    val picture: String? = null
 )

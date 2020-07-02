@@ -69,13 +69,35 @@ class QuizController (
 
     @PostMapping("/uploadImage")
     @ResponseStatus(value = HttpStatus.OK)
-    @ApiOperation(value = "Upload Media", notes = "Upload media content")
+    @ApiOperation(value = "Upload Image", notes = "Upload image content")
     @ApiResponses(
             ApiResponse(code = 200, message = "Request successful")
     )
     @ResponseBody
     fun uploadImage(@RequestBody media: DataWrapper): String {
         return cloudService.uploadImage(media.data)
+    }
+
+    @PostMapping("/uploadAudio")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Upload Audio", notes = "Upload audio content")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful")
+    )
+    @ResponseBody
+    fun uploadAudio(@RequestBody media: DataWrapper): String {
+        return cloudService.uploadAudio(media.data)
+    }
+
+    @PostMapping("/uploadVideo")
+    @ResponseStatus(value = HttpStatus.OK)
+    @ApiOperation(value = "Upload Video", notes = "Upload video content")
+    @ApiResponses(
+            ApiResponse(code = 200, message = "Request successful")
+    )
+    @ResponseBody
+    fun uploadVideo(@RequestBody media: DataWrapper): String {
+        return cloudService.uploadVideo(media.data)
     }
 
     companion object {

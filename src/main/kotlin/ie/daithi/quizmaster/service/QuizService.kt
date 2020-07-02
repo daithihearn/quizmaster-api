@@ -1,11 +1,9 @@
 package ie.daithi.quizmaster.service
 
-import com.cloudinary.Cloudinary
-import com.cloudinary.utils.ObjectUtils
+import ie.daithi.quizmaster.model.Question
 import ie.daithi.quizmaster.model.Quiz
 import ie.daithi.quizmaster.repositories.QuizRepo
 import ie.daithi.quizmaster.web.exceptions.NotFoundException
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.logging.log4j.LogManager
 import org.springframework.stereotype.Service
 
@@ -21,6 +19,14 @@ class QuizService(
         return quizOpt.get()
     }
 
+    fun getQuestion(quizId: String, roundId: String, questionId: String): Question {
+        val quiz = get(quizId)
+
+        val round = quiz.rounds.find { round -> round.id == roundId } ?: throw NotFoundException("Round $roundId not found in quiz $quizId")
+
+        return round.questions.find { question -> question.id == questionId}?: throw NotFoundException("Question $questionId not found in quiz $quizId for round $roundId")
+    }
+
     fun getAll(): List<Quiz> {
         return quizRepo.getAll()
     }
@@ -34,6 +40,10 @@ class QuizService(
 
     fun delete(id: String) {
         quizRepo.deleteById(id)
+    }
+
+    fun exists(quizId: String): Boolean {
+        return quizRepo.existsById(quizId)
     }
 
     companion object {

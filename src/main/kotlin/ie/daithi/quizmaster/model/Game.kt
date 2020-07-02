@@ -12,5 +12,7 @@ data class Game (
     var status: GameStatus,
     val quizId: String,
     val quizMasterId: String,
-    val players: List<Player>
+    var players: List<String>,
+    var publishedQuestions: List<String> = emptyList(),
+    var currentContent: PublishContent? = null
 )

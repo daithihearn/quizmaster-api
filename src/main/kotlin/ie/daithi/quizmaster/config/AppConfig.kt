@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.service.*
@@ -13,17 +12,12 @@ import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
-import java.security.SecureRandom
 import java.util.*
 
 @Configuration
 @ComponentScan(basePackages = ["ie.daithi.quizmaster"])
 @EnableSwagger2
 class AppConfig(
-        @Value("\${password.encoder.strength}")
-        private val strength: Int,
-        @Value("\${password.encoder.seed}")
-        private val seed: String,
         @Value("\${sendgrid.api.key}")
         private val sendgridApiKey: String
 ) {
@@ -62,12 +56,6 @@ class AppConfig(
                 "blah",
                 Contact("Daithi Hearn","https://github.com/daithihearn", "daithi.hearn@gmail.com"),
                 "", "", Collections.emptyList())
-    }
-
-    @Bean("passwordEncoder")
-    fun passwordEncoder(): BCryptPasswordEncoder {
-        val secureRandom = SecureRandom(seed.toByteArray())
-        return BCryptPasswordEncoder(strength, secureRandom)
     }
 
     @Bean("emailClient")

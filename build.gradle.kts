@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
-	val kotlinVersion = "1.3.50"
-	val springBootVersion = "2.2.6.RELEASE"
+	val kotlinVersion = "1.3.72"
+	val springBootVersion = "2.3.0.RELEASE"
 	repositories {
 		mavenLocal()
 		mavenCentral()
@@ -14,16 +14,14 @@ buildscript {
 }
 
 plugins {
-	id("org.springframework.boot") version "2.2.6.RELEASE"
-	id("io.spring.dependency-management") version "1.0.9.RELEASE"
-	id("maven-publish")
-	kotlin("jvm") version "1.3.61"
-	kotlin("plugin.spring") version "1.3.71"
+    id("org.springframework.boot") version "2.3.0.RELEASE"
+    id("maven-publish")
+    id("org.jetbrains.kotlin.jvm") version "1.3.72"
+	kotlin("plugin.spring") version "1.3.72"
 }
 
 apply(plugin = "maven")
-apply(plugin = "org.springframework.boot")
-apply(plugin = "kotlin")
+apply(plugin = "io.spring.dependency-management")
 
 tasks.withType<JavaCompile> {
 	options.encoding = "UTF-8"
@@ -40,16 +38,14 @@ repositories {
 
 group = "ie.daithi.quizmaster"
 version = "0.1.0-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_13
 
 description = "api"
 
-val springBootVersion: String = "2.2.6.RELEASE"
+val springBootVersion: String = "2.3.0.RELEASE"
 val swaggerVersion: String = "2.9.2"
 
 dependencies {
-
-	// Internal Dependencies
-	implementation("ie.daithi.quizmaster:quizmaster-frontend:$version")
 
 	//External Dependencies
 
@@ -58,11 +54,13 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:1.3.72")
 
 	//Spring dependencies
-	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
+	implementation("org.springframework.security:spring-security-oauth2-resource-server:5.3.3.RELEASE")
+	implementation("org.springframework.security:spring-security-oauth2-jose:5.3.3.RELEASE")
 	testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
 
 	//Springfox
@@ -82,6 +80,6 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "12"
+		jvmTarget = "13"
 	}
 }

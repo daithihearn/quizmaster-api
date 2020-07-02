@@ -13,4 +13,5 @@ interface AnswerRepo: MongoRepository<Answer, String> {
 
     fun existsByGameIdAndPlayerId(gameId: String, playerId: String): Boolean
     fun existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(gameId: String, playerId: String, roundId: String, questionId: String): Boolean
+    fun findByGameIdAndRoundIdAndQuestionId(gameId: String, roundId: String, questionId: String): List<Answer>
 }

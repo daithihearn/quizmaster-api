@@ -2,6 +2,7 @@ package ie.daithi.quizmaster.model
 
 import ie.daithi.quizmaster.enumeration.AnswerMethod
 import org.springframework.data.mongodb.core.mapping.Document
+import java.time.LocalDateTime
 
 @Document(collection="answers")
 data class Answer(
@@ -12,6 +13,7 @@ data class Answer(
         val roundId: String,
         val questionId: String,
         val answer: String,
-        var score: Float? = null,
-        var method: AnswerMethod? = null
+        var score: Int? = null,
+        var method: AnswerMethod? = null,
+        val timestamp: LocalDateTime
 )
