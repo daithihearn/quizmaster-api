@@ -46,7 +46,8 @@ class AnswerController(
                 game = game,
                 roundId = answer.roundId,
                 questionId = answer.questionId,
-                answer = answer.answer)
+                answer = answer.answer,
+                multipleChoice = answer.multipleChoice)
     }
 
     @GetMapping("/answer/all")

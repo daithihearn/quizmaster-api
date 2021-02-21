@@ -28,19 +28,41 @@ class ScoringService(
         return score >= winningScore
     }
 
+    fun isAbsoluteAnswer(correctAnswer: String, answer: String): Boolean {
+        return correctAnswer.equals(answer, true)
+    }
+
     fun isInCorrectAnswer(correctAnswer: String, answer: String): Boolean {
         // 1. Determine a loosing score
-        val loosingScore = correctAnswer.length * lowerThreshold
+        val losingScore = correctAnswer.length * lowerThreshold
 
         // 2. Get Fuzzy match score
         val score = fuzzyScore.fuzzyScore(correctAnswer, answer)
-        logger.debug("A loosing score is $loosingScore\nScored correctAnswer($correctAnswer) answer($answer): $score ")
+        logger.debug("A losing score is $losingScore\nScored correctAnswer($correctAnswer) answer($answer): $score ")
 
         // 3. Return answer
-        return score <= loosingScore
+        return score <= losingScore
     }
 
-    fun attemptScore(answer: String, answerObj: Answer, points: Int?) {
+    fun attemptScore(answer: String, answerObj: Answer, points: Int?, absolute: Boolean) {
+        if (absolute) {
+            attemptAbsoluteScore(answer, answerObj, points)
+        } else {
+            attemptFuzzyScore(answer, answerObj, points)
+        }
+    }
+
+    private fun attemptAbsoluteScore(answer: String, answerObj: Answer, points: Int?) {
+        if (isAbsoluteAnswer(answer, answerObj.answer)) {
+            answerObj.score = points ?: 1
+            answerObj.method = AnswerMethod.AUTOMATIC
+        } else {
+            answerObj.score = 0
+            answerObj.method = AnswerMethod.AUTOMATIC
+        }
+    }
+
+    private fun attemptFuzzyScore(answer: String, answerObj: Answer, points: Int?) {
         if (isCorrectAnswer(answer, answerObj.answer)) {
             answerObj.score = points ?: 1
             answerObj.method = AnswerMethod.AUTOMATIC

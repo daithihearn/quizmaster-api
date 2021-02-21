@@ -4,5 +4,6 @@ data class SubmitAnswer(
         val gameId: String,
         val roundId: String,
         val questionId: String,
-        val answer: String
+        val answer: String,
+        val multipleChoice: Boolean
 )

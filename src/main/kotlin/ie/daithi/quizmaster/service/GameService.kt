@@ -91,6 +91,7 @@ class GameService(
                 roundId = pointer.roundId,
                 questionId = pointer.questionId,
                 question = question.question,
+                options = question.options,
                 imageUri = question.imageUri,
                 audioUri = question.audioUri,
                 videoUri = question.videoUri)

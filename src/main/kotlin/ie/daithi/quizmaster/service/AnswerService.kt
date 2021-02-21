@@ -25,7 +25,7 @@ class AnswerService(
         private val publishService: PublishService
 ) {
 
-    fun submitAnswer(playerId: String, game: Game, roundId: String, questionId: String, answer: String) {
+    fun submitAnswer(playerId: String, game: Game, roundId: String, questionId: String, answer: String, multipleChoice: Boolean) {
 
         // 1. Check if they already submitted an answer
         if (answerRepo.existsByGameIdAndPlayerIdAndRoundIdAndQuestionId(
@@ -40,8 +40,8 @@ class AnswerService(
                 answer = answer, timestamp = LocalDateTime.now())
 
         val question = quizService.getQuestion(game.quizId, roundId, questionId)
-        if (!question.forceManualCorrection)
-            scoringService.attemptScore(question.answer, answerObj, question.points)
+        if (multipleChoice || !question.forceManualCorrection)
+            scoringService.attemptScore(question.answer, answerObj, question.points, multipleChoice)
 
         // 3. Store answer
         answerRepo.save(answerObj)

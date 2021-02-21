@@ -37,7 +37,7 @@ repositories {
 }
 
 group = "ie.daithi.quizmaster"
-version = "0.1.0-SNAPSHOT"
+version = "0.2.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_13
 
 description = "api"
